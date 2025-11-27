@@ -1,0 +1,151 @@
+
+
+Aicrypto.expert business plan
+1. Domain name - www.aicrypto.expert
+2. website template - Telegram bot
+3. Software modules - Telegrame Bot Demo
+4. Developer point
+(i) Weekly power trade
+(a) ye trade week main eke bar open hogi Saturday main.
+(b) ye top per show hoga.
+5. Business plan
+(i) Investment Bot Package
+Ser No Slab Amount ROI Remarks
+1. Bot Slab one $1 to $499 7% Till 20 days,
+2. Bot Slab two $500 to
+$4999
+8% Till 20 days,
+3 Bot Slab $5000 to
+unlimited
+9% Till 20 days,
+4. Weekly Power
+Trade
+$50 to $100 40% In 72 hrs
+(a) A Telegram trading bot automates crypto trades, provides real-time market
+alerts, executes buy/sell signals, tracks portfolio, offers risk management tools, and
+ensures fast, secure, hands-free trading directly inside Telegram.
+(ii) Direct Refer Income: -
+Ser No Refer to the id amount ROI Remarks
+1. $50 to $1000 $15 Direct refer and
+compounding
+amount
+2. $1001 to Unlimited 5% Direct refer and
+compounding
+amount
+(a) Direct Refer Income rewards users for inviting new members. When a
+referred user activates the trading bot, the referrer instantly earns a fixed commission or
+percentage bonus, creating simple and fast earning opportunities.
+(iii) Level Income: -
+Ser No Level Level Income Remarks
+1. 1st Level 2% One time, invest
+and compounding
+invest
+2. 2nd Level 2%
+3. 3rd Level 2%
+4. 4th Level 2%
+5. 5th Level 2%
+6. 6th Level 2%
+7. 7th Level 2%
+8. 8th Level 2%
+9. 9th Level 2%
+10. 10th Level 2%
+(a) Level Income provides multi-level earnings from your network’s activity.
+When downline members activate or trade using the bot, you earn commissions across
+multiple levels, helping build long-term residual and passive income.
+Terms & Conditions – Telegram Crypto Expert Trading Bot
+1. Eligibility
+Users must have a valid Telegram account and a USDT.BEP20 wallet to access the
+trading bot.
+2. Deposits & Withdrawals
+o All transactions are processed in USDT.BEP20 only.
+o Minimum deposit and withdrawal amounts apply as specified in the
+platform guidelines.
+o Users are responsible for ensuring correct wallet addresses; the
+bot/company is not liable for incorrect transfers.
+3. Trading & Contract Duration
+o Each trading power contract runs for the duration mentioned (e.g., 20
+days).
+o Trading is automated based on market strategies; profits are not
+guaranteed.
+o The platform does not promise fixed returns and is not liable for market
+risks.
+4. Fees & Charges
+Any applicable service charges, network fees, or withdrawal fees will be deducted
+as per the rules.
+5. User Responsibility
+o Users must maintain account confidentiality.
+o Any activity performed through their Telegram account will be considered
+authorised.
+6. Risk Acknowledgement
+Crypto trading involves market risks, volatility, and potential loss.
+Users trade at their own discretion and responsibility.
+7. Referral & Income Structure
+Referral bonuses and level income will be credited as per the defined
+compensation plan.
+The company reserves the right to modify the commission structure.
+8. Security & Compliance
+o Blockchain-based transactions are irreversible.
+o Users must comply with local laws regarding crypto usage and taxation.
+9. Bot Updates & Service Changes
+The platform may update features, strategies, or rules without prior notice to
+improve operations.
+10. Limitation of Liability
+The company/bot shall not be liable for losses arising from:
+o Market fluctuations
+o Technical issues
+o Incorrect user inputs
+o Third-party exchange failures
+11. Account Termination
+The company reserves the right to suspend or terminate accounts violating rules
+or engaging in fraudulent activities.
+12. Acceptance of Terms
+By using the Telegram Crypto Expert Trading Bot, users agree to all the Terms &
+Conditions listed above.
+About us Crypto Expert Bot
+AiCrypto expert is a next-generation AI-powered Telegram trading bot created to make
+crypto trading simple, automated, and profitable for everyone. Our mission is to provide
+fast, secure, and intelligent trading tools that work 24/7 without manual effort. We
+combine advanced algorithms, real-time market analysis, and automated execution to
+deliver consistent performance in all market conditions. At AiCrypto expert, we focus on
+transparency, security, and user-friendly automation. We also offer referral income and
+level-based rewards to support community growth. Our goal is to empower traders and
+investors with smart technology that maximizes opportunities and enhances long-term
+financial success.
+Vision of Crypto Expert Bot
+Our vision at Ai Crypto Expert is to transform the future of digital trading through
+advanced automation and artificial intelligence. We aim to create a global ecosystem
+where every user—beginner or professional—can trade confidently, securely, and
+profitably using smart automated tools. We envision a world where trading is simplified
+through AI-driven strategies, real-time insights, and 24/7 automated execution directly
+inside Telegram. Ai Crypto Expert strives to become the most trusted and innovative
+trading companion, empowering millions to achieve financial independence through
+technology. Our long-term vision includes building a complete AI trading ecosystem with
+education, tools, and community growth.
+Mission of Crypto Expert Bot
+Our mission at Ai Crypto Expert is to empower users with a powerful, secure, and fully
+automated Telegram crypto trading solution. We aim to simplify digital trading by
+providing AI-driven insights, real-time signals, and 24/7 automated execution. Our focus
+is on transparency, accuracy, and user-friendly technology that helps traders maximize
+profits while minimizing risks. We strive to make advanced crypto trading accessible to
+everyone, regardless of experience level. Through blockchain security, innovative tools,
+and community-driven growth, Ai Crypto Expert is dedicated to building a trusted
+ecosystem where users can trade confidently and achieve long-term financial success.
+What is Telegram Crypto Expert Bot
+A Telegram crypto bot is an automated trading tool that operates directly inside the
+Telegram app, allowing users to manage, trade, and monitor cryptocurrencies easily. It
+connects to exchanges through APIs and executes trades based on AI signals, market
+strategies, or user settings. Telegram crypto bots provide real-time alerts, instant
+execution, portfolio tracking, and risk management without needing complicated trading
+platforms. With automation running 24/7, users can earn even when offline. Ai Crypto
+Expert uses advanced AI algorithms to enhance decision-making, reduce emotional
+trading, and deliver a smooth, secure, hands-free crypto trading experience for all users.
+what is blockchain
+A Blockchain Telegram Crypto Bot is an automated trading system that runs on Telegram
+and uses blockchain technology for secure, transparent, and tamper-proof operations. It
+connects with crypto exchanges through APIs and executes trades based on smart
+algorithms, AI signals, and predefined strategies. Blockchain ensures that all
+transactions, rewards, and bot activities remain immutable and trustworthy. Users
+receive real-time market alerts, instant trade execution, portfolio updates, and passive
+earning features directly inside Telegram. Ai Crypto Expert combines blockchain
+transparency with AI intelligence to offer fast, reliable, and fully automated crypto
+trading for beginners and professionals alike.

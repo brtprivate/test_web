@@ -1,0 +1,32 @@
+{
+  "name": "user",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "npm run clean && next build",
+    "build:clean": "npm run clean && next build",
+    "clean": "node -e \"const fs = require('fs'); const path = require('path'); const { execSync } = require('child_process'); const dirs = ['.next', '.turbo']; const files = ['tsconfig.tsbuildinfo']; const rm = (item) => { try { const stat = fs.statSync(item); if (stat.isDirectory()) { fs.rmSync(item, { recursive: true, force: true }); console.log('Removed:', item); } else { fs.unlinkSync(item); console.log('Removed:', item); } } catch (e) {} }; dirs.forEach(rm); files.forEach(rm); try { const cachePath = path.join('node_modules', '.cache'); if (fs.existsSync(cachePath)) { fs.rmSync(cachePath, { recursive: true, force: true }); console.log('Removed: node_modules/.cache'); } } catch (e) {}\"",
+    "start": "next start  -p 1700",
+    "lint": "eslint",
+    "error": "npx tsc --noEmit"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.2.7",
+    "next": "16.0.3",
+    "qrcode.react": "^4.2.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-redux": "^9.1.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.3",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

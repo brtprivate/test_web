@@ -1,0 +1,418 @@
+npx tsc
+src/features/admin/controllers/admin-management.controller.ts:12:27 - error TS6133: 'req' is declared but its value is never read.
+
+12   async getDashboardStats(req: AdminAuthRequest, res: Response, next: NextFunction): Promise<void> {
+                             ~~~
+
+src/features/admin/controllers/admin-management.controller.ts:151:21 - error TS6133: 'req' is declared but its value is never read.
+
+151   async getAllPlans(req: AdminAuthRequest, res: Response, next: NextFunction): Promise<void> {
+                        ~~~
+
+src/features/admin/controllers/admin.controller.ts:121:22 - error TS6133: 'req' is declared but its value is never read.
+
+121   async getAllAdmins(req: AdminAuthRequest, res: Response, next: NextFunction): Promise<void> {
+                         ~~~
+
+src/features/admin/routes/admin-management.routes.ts:5:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+5 const router = Router();
+        ~~~~~~
+
+src/features/admin/routes/admin.routes.ts:6:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+6 const router = Router();
+        ~~~~~~
+
+src/features/admin/services/admin.service.ts:95:11 - error TS18046: 'admin._id' is of type 'unknown'.
+
+95       id: admin._id.toString(),
+             ~~~~~~~~~
+
+src/features/admin/services/admin.service.ts:100:16 - error TS2769: No overload matches this call.
+  Overload 1 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: null, options?: (SignOptions & { algorithm: "none"; }) | undefined): string', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'null'.
+  Overload 2 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Buffer<ArrayBufferLike> | Secret | PrivateKeyInput | JsonWebKeyInput, options?: SignOptions | undefined): string', gave the following error.
+    Type 'string' is not assignable to type 'number | StringValue | undefined'.
+  Overload 3 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Buffer<ArrayBufferLike> | Secret | PrivateKeyInput | JsonWebKeyInput, callback: SignCallback): void', gave the following error.
+    Object literal may only specify known properties, and 'expiresIn' does not exist in type 'SignCallback'.
+
+100     return jwt.sign(payload, env.JWT_SECRET, {
+                   ~~~~
+
+
+src/features/auth/controllers/auth.controller.ts:112:50 - error TS6133:
+ 'next' is declared but its value is never read.
+
+112   async verifyToken(req: Request, res: Response, next: NextFunction): Promise<void> {
+                                                     ~~~~
+
+src/features/auth/routes/auth.routes.ts:4:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+4 const router = Router();
+        ~~~~~~
+
+src/features/auth/services/auth.service.ts:143:16 - error TS2769: No overload matches this call.
+  Overload 1 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: null, options?: (SignOptions & { algorithm: "none"; }) | undefined): string', gave the following error.
+    Argument of type 'string' is not assignable to parameter of type 'null'.
+  Overload 2 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Buffer<ArrayBufferLike> | Secret | PrivateKeyInput | JsonWebKeyInput, options?: SignOptions | undefined): string', gave the following error.
+    Type 'string' is not assignable to type 'number | StringValue | undefined'.
+  Overload 3 of 5, '(payload: string | object | Buffer<ArrayBufferLike>, secretOrPrivateKey: Buffer<ArrayBufferLike> | Secret | PrivateKeyInput | JsonWebKeyInput, callback: SignCallback): void', gave the following error.
+    Object literal may only specify known properties, and 'expiresIn' does not exist in type 'SignCallback'.
+
+143     return jwt.sign(payload, env.JWT_SECRET || 'default-secret', { 
+                   ~~~~
+
+
+src/features/deposits/controllers/deposit.controller.ts:1:10 - error TS6133: 'Request' is declared but its value is never read.
+
+1 import { Request, Response, NextFunction } from 'express';
+           ~~~~~~~
+
+src/features/deposits/controllers/deposit.controller.ts:171:33 - error TS6133: 'req' is declared but its value is never read.
+
+171   async getPendingDepositsCount(req: AdminAuthRequest, res: Response, next: NextFunction): Promise<void> {
+                                    ~~~
+
+src/features/deposits/routes/deposit.routes.ts:6:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+6 const router = Router();
+        ~~~~~~
+
+src/features/deposits/services/deposit.service.ts:5:1 - error TS6133: 'transactionService' is declared but its value is never read.
+
+5 import { transactionService } from '../../transactions/services/transaction.service';
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+src/features/deposits/services/deposit.service.ts:69:11 - error TS2367: This comparison appears to be unintentional because the types '"pending" | "failed" | "cancelled" | "confirmed"' and '"completed"' have no overlap.
+
+69       if (deposit.status === 'completed') {
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+src/features/deposits/services/deposit.service.ts:78:9 - error TS18046:
+ 'deposit._id' is of type 'unknown'.
+
+78         deposit._id.toString()
+           ~~~~~~~~~~~
+
+src/features/deposits/services/deposit.service.ts:172:43 - error TS18046: 'deposit._id' is of type 'unknown'.
+
+172     return await this.updateDepositStatus(deposit._id.toString(), {
+                                              ~~~~~~~~~~~
+
+src/features/income/controllers/income-transaction.controller.ts:1:10 -
+ error TS6133: 'Request' is declared but its value is never read.      
+
+1 import { Request, Response, NextFunction } from 'express';
+           ~~~~~~~
+
+src/features/income/controllers/income.controller.ts:1:10 - error TS6133: 'Request' is declared but its value is never read.
+
+1 import { Request, Response, NextFunction } from 'express';
+           ~~~~~~~
+
+src/features/income/routes/income-transaction.routes.ts:5:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+5 const router = Router();
+        ~~~~~~
+
+src/features/income/routes/income.routes.ts:5:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+5 const router = Router();
+        ~~~~~~
+
+src/features/income/services/income.service.ts:10:47 - error TS18046: 'investment._id' is of type 'unknown'.
+
+10       await investmentService.processDailyROI(investment._id.toString());
+                                                 ~~~~~~~~~~~~~~        
+
+src/features/income/services/income.service.ts:23:11 - error TS6133: 'transactionService' is declared but its value is never read.
+
+23     const { transactionService } = await import('../../transactions/services/transaction.service');
+             ~~~~~~~~~~~~~~~~~~~~~~
+
+src/features/investment-plans/controllers/investment-plan.controller.ts:131:25 - error TS6133: 'req' is declared but its value is never read. 
+
+131   async initializePlans(req: Request, res: Response, next: NextFunction): Promise<void> {
+                            ~~~
+
+src/features/investment-plans/routes/investment-plan.routes.ts:5:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+5 const router = Router();
+        ~~~~~~
+
+src/features/investments/routes/investment.routes.ts:5:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+5 const router = Router();
+        ~~~~~~
+
+src/features/investments/services/investment.service.ts:71:20 - error TS18046: 'savedInvestment._id' is of type 'unknown'.
+
+71       referenceId: savedInvestment._id.toString(),
+                      ~~~~~~~~~~~~~~~~~~~
+
+src/features/investments/services/investment.service.ts:143:20 - error TS18046: 'investment._id' is of type 'unknown'.
+
+143       referenceId: investment._id.toString(),
+                       ~~~~~~~~~~~~~~
+
+src/features/investments/services/investment.service.ts:144:7 - error TS2322: Type 'unknown' is not assignable to type 'string | undefined'.  
+
+144       investmentId: investment._id,
+          ~~~~~~~~~~~~
+
+  src/features/income/types/income-transaction.types.ts:7:3
+    7   investmentId?: string;
+        ~~~~~~~~~~~~
+    The expected type comes from property 'investmentId' which is declared here on type 'CreateIncomeTransactionDto'
+
+src/features/payment/controllers/payment.controller.ts:1:10 - error TS6133: 'Request' is declared but its value is never read.
+
+1 import { Request, Response, NextFunction } from 'express';
+           ~~~~~~~
+
+src/features/payment/controllers/payment.controller.ts:16:60 - error TS6133: 'next' is declared but its value is never read.
+
+16   async generateNewWallet(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+                                                              ~~~~     
+
+src/features/payment/controllers/payment.controller.ts:71:53 - error TS6133: 'next' is declared but its value is never read.
+
+71   async saveWallet(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+                                                       ~~~~
+
+src/features/payment/controllers/payment.controller.ts:136:58 - error TS6133: 'next' is declared but its value is never read.
+
+136   async startMonitoring(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+                                                             ~~~~      
+
+src/features/payment/controllers/payment.controller.ts:211:19 - error TS6133: 'net_amount' is declared but its value is never read.
+
+211             const net_amount = amount - fee;
+                      ~~~~~~~~~~
+
+src/features/payment/controllers/payment.controller.ts:281:60 - error TS6133: 'next' is declared but its value is never read.
+
+281   async requestWithdrawal(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+                                                               ~~~~    
+
+src/features/payment/controllers/payment.controller.ts:369:65 - error TS6133: 'next' is declared but its value is never read.
+
+369   async processWithdrawal(req: AdminAuthRequest, res: Response, next: NextFunction): Promise<void> {
+                                                                    ~~~~
+
+src/features/referrals/controllers/referral.controller.ts:1:10 - error TS6133: 'Request' is declared but its value is never read.
+
+1 import { Request, Response, NextFunction } from 'express';
+           ~~~~~~~
+
+src/features/referrals/routes/referral.routes.ts:5:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+5 const router = Router();
+        ~~~~~~
+
+src/features/referrals/services/referral.service.ts:2:1 - error TS6133:
+ 'walletService' is declared but its value is never read.
+
+2 import { walletService } from '../../wallet/services/wallet.service';
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+src/features/referrals/services/referral.service.ts:3:1 - error TS6133:
+ 'transactionService' is declared but its value is never read.
+
+3 import { transactionService } from '../../transactions/services/transaction.service';
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+src/features/referrals/services/referral.service.ts:80:17 - error TS18046: 'referral._id' is of type 'unknown'.
+
+80         userId: referral._id.toString(),
+                   ~~~~~~~~~~~~
+
+src/features/referrals/services/referral.service.ts:98:27 - error TS18046: 'ref._id' is of type 'unknown'.
+
+98         allReferrals.push(ref._id.toString());
+                             ~~~~~~~
+
+src/features/referrals/services/referral.service.ts:99:28 - error TS18046: 'ref._id' is of type 'unknown'.
+
+99         await getReferrals(ref._id.toString());
+                              ~~~~~~~
+
+src/features/referrals/services/referral.service.ts:164:9 - error TS18046: 'user._id' is of type 'unknown'.
+
+164         user._id.toString(),
+            ~~~~~~~~
+
+src/features/settings/controllers/setting.controller.ts:81:24 - error TS6133: 'req' is declared but its value is never read.
+
+81   async getAllSettings(req: Request, res: Response, next: NextFunction): Promise<void> {
+                          ~~~
+
+src/features/settings/controllers/setting.controller.ts:95:28 - error TS6133: 'req' is declared but its value is never read.
+
+95   async initializeSettings(req: Request, res: Response, next: NextFunction): Promise<void> {
+                              ~~~
+
+src/features/settings/routes/setting.routes.ts:5:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+5 const router = Router();
+        ~~~~~~
+
+src/features/transactions/routes/transaction.routes.ts:5:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+5 const router = Router();
+        ~~~~~~
+
+src/features/users/controllers/user.controller.ts:28:21 - error TS6133:
+ 'req' is declared but its value is never read.
+
+28   async getAllUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
+                       ~~~
+
+src/features/users/routes/user.routes.ts:4:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+4 const router = Router();
+        ~~~~~~
+
+src/features/wallet/controllers/wallet.controller.ts:1:10 - error TS6133: 'Request' is declared but its value is never read.
+
+1 import { Request, Response, NextFunction } from 'express';
+           ~~~~~~~
+
+src/features/wallet/routes/wallet.routes.ts:5:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+5 const router = Router();
+        ~~~~~~
+
+src/index.ts:21:7 - error TS2742: The inferred type of 'app' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+21 const app = express();
+         ~~~
+
+src/index.ts:33:21 - error TS6133: 'req' is declared but its value is never read.
+
+33 app.get('/health', (req, res) => {
+                       ~~~
+
+src/index.ts:107:16 - error TS2769: No overload matches this call.     
+  Overload 1 of 6, '(port: number, hostname: string, backlog: number, callback?: (() => void) | undefined): Server<typeof IncomingMessage, typeof ServerResponse>', gave the following error.
+    Argument of type 'string | 3000' is not assignable to parameter of type 'number'.
+      Type 'string' is not assignable to type 'number'.
+  Overload 2 of 6, '(port: number, hostname: string, callback?: (() => void) | undefined): Server<typeof IncomingMessage, typeof ServerResponse>', gave the following error.
+    Argument of type 'string | 3000' is not assignable to parameter of type 'number'.
+      Type 'string' is not assignable to type 'number'.
+
+107     app.listen(PORT, HOST, () => {
+                   ~~~~
+
+
+src/middleware/admin.middleware.ts:59:11 - error TS18046: 'admin._id' is of type 'unknown'.
+
+59       id: admin._id.toString(),
+             ~~~~~~~~~
+
+src/middleware/errorHandler.ts:10:3 - error TS6133: 'req' is declared but its value is never read.
+
+10   req: Request,
+     ~~~
+
+src/middleware/errorHandler.ts:12:3 - error TS6133: 'next' is declared but its value is never read.
+
+12   next: NextFunction
+     ~~~~
+
+src/middleware/notFoundHandler.ts:6:3 - error TS6133: 'next' is declared but its value is never read.
+
+6   next: NextFunction
+    ~~~~
+
+src/routes/index.ts:16:7 - error TS2742: The inferred type of 'router' cannot be named without a reference to '.pnpm/@types+express-serve-static-core@4.19.7/node_modules/@types/express-serve-static-core'. This is likely not portable. A type annotation is necessary.
+
+16 const router = Router();
+         ~~~~~~
+
+src/services/telegram.service.ts:1:25 - error TS7016: Could not find a declaration file for module 'node-telegram-bot-api'. 'C:/Users/BRT/Downloads/web-projects/aiearnbot/server/node_modules/.pnpm/node-telegram-bot-api@0.64.0_request@2.88.2/node_modules/node-telegram-bot-api/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/node-telegram-bot-api` if it exists or add a new declaration (.d.ts) file containing `declare module 'node-telegram-bot-api';`
+
+1 import TelegramBot from 'node-telegram-bot-api';
+                          ~~~~~~~~~~~~~~~~~~~~~~~
+
+src/services/telegram.service.ts:2:30 - error TS7016: Could not find a declaration file for module 'node-telegram-bot-api'. 'C:/Users/BRT/Downloads/web-projects/aiearnbot/server/node_modules/.pnpm/node-telegram-bot-api@0.64.0_request@2.88.2/node_modules/node-telegram-bot-api/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/node-telegram-bot-api` if it exists or add a new declaration (.d.ts) file containing `declare module 'node-telegram-bot-api';`
+
+2 import type { Message } from 'node-telegram-bot-api';
+                               ~~~~~~~~~~~~~~~~~~~~~~~
+
+src/services/wallet-monitor.service.ts:5:1 - error TS6133: 'walletService' is declared but its value is never read.
+
+5 import { walletService } from '../features/wallet/services/wallet.service';
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+src/services/wallet-monitor.service.ts:11:11 - error TS6133: 'usdtReceiveWallet' is declared but its value is never read.
+
+11   private usdtReceiveWallet: string;
+             ~~~~~~~~~~~~~~~~~
+
+src/services/wallet-monitor.service.ts:12:11 - error TS6133: 'gasWallet' is declared but its value is never read.
+
+12   private gasWallet: string;
+             ~~~~~~~~~
+
+src/services/wallet-monitor.service.ts:13:11 - error TS6133: 'gasPrivateKey' is declared but its value is never read.
+
+13   private gasPrivateKey: string;
+             ~~~~~~~~~~~~~
+
+src/services/wallet-monitor.service.ts:163:38 - error TS18046: 'user._id' is of type 'unknown'.
+
+163         await this.monitorUserWallet(user._id.toString());
+                                         ~~~~~~~~
+
+src/services/wallet-monitor.service.ts:175:17 - error TS6133: 'getTransactionCount' is declared but its value is never read.
+
+175   private async getTransactionCount(address: string): Promise<number> {
+                    ~~~~~~~~~~~~~~~~~~~
+
+
+Found 68 errors in 38 files.
+
+Errors  Files
+     2  src/features/admin/controllers/admin-management.controller.ts:12
+     1  src/features/admin/controllers/admin.controller.ts:121
+     1  src/features/admin/routes/admin-management.routes.ts:5
+     1  src/features/admin/routes/admin.routes.ts:6
+     2  src/features/admin/services/admin.service.ts:95
+     1  src/features/auth/controllers/auth.controller.ts:112
+     1  src/features/auth/routes/auth.routes.ts:4
+     1  src/features/auth/services/auth.service.ts:143
+     2  src/features/deposits/controllers/deposit.controller.ts:1      
+     1  src/features/deposits/routes/deposit.routes.ts:6
+     4  src/features/deposits/services/deposit.service.ts:5
+     1  src/features/income/controllers/income-transaction.controller.ts:1
+     1  src/features/income/controllers/income.controller.ts:1
+     1  src/features/income/routes/income-transaction.routes.ts:5      
+     1  src/features/income/routes/income.routes.ts:5
+     2  src/features/income/services/income.service.ts:10
+     1  src/features/investment-plans/controllers/investment-plan.controller.ts:131
+     1  src/features/investment-plans/routes/investment-plan.routes.ts:5
+     1  src/features/investments/routes/investment.routes.ts:5
+     3  src/features/investments/services/investment.service.ts:71     
+     7  src/features/payment/controllers/payment.controller.ts:1       
+     1  src/features/referrals/controllers/referral.controller.ts:1    
+     1  src/features/referrals/routes/referral.routes.ts:5
+     6  src/features/referrals/services/referral.service.ts:2
+     2  src/features/settings/controllers/setting.controller.ts:81     
+     1  src/features/settings/routes/setting.routes.ts:5
+     1  src/features/transactions/routes/transaction.routes.ts:5       
+     1  src/features/users/controllers/user.controller.ts:28
+     1  src/features/users/routes/user.routes.ts:4
+     1  src/features/wallet/controllers/wallet.controller.ts:1
+     1  src/features/wallet/routes/wallet.routes.ts:5
+     3  src/index.ts:21
+     1  src/middleware/admin.middleware.ts:59
+     2  src/middleware/errorHandler.ts:10
+     1  src/middleware/notFoundHandler.ts:6
+     1  src/routes/index.ts:16
+     2  src/services/telegram.service.ts:1
+     6  src/services/wallet-monitor.service.ts:5
+PS C:\Users\BRT\Downloads\web-projects\aiearnbot\server> 
