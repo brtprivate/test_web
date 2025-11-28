@@ -464,7 +464,12 @@ class TelegramService {
           '/start - Auto-register or login again',
           '/myid - Show your Chat ID',
           '/help - How everything works',
-          '/link - Get a fresh launch link',
+          '/qa - Questions & Answers',
+          '/news - Official News',
+          '/support - Get Support',
+          '/introduction - Introduction Guide',
+          '/language - Change Language',
+          '/referral - Referral Program',
         ].join('\n');
 
         await this.bot!.sendMessage(chatId, message, {
@@ -541,7 +546,12 @@ class TelegramService {
         `/start - Start the bot and get your Chat ID\n` +
         `/myid - Get your Telegram Chat ID\n` +
         `/help - Show this help message\n` +
-        `/link - Get instant login link\n` +
+        `/qa - Questions & Answers\n` +
+        `/news - Official News\n` +
+        `/support - Get Support\n` +
+        `/introduction - Introduction Guide\n` +
+        `/language - Change Language\n` +
+        `/referral - Referral Program\n` +
         `launch / open - Directly launch the web app\n\n` +
         `*Authentication:*\n` +
         `1. Use /start once and we auto-register you\n` +
@@ -556,32 +566,182 @@ class TelegramService {
       );
     });
 
-    // Link command - Example of masked URL
-    this.bot.onText(/\/link/, async (msg: Message) => {
+    // Q&A command
+    this.bot.onText(/\/qa/, async (msg: Message) => {
       const chatId = this.getChatId(msg);
-      console.log('⚡ [TELEGRAM] /link command received', { chatId });
+      console.log('⚡ [TELEGRAM] /qa command received', { chatId });
 
       try {
         const { token } = await this.ensureUserAndToken(msg);
-        console.log('✅ [TELEGRAM] User ensured via /link', { chatId });
-        const loginUrl = this.buildLoginUrl(chatId, token);
-        console.log('🌐 [TELEGRAM] Login URL generated via /link', {
-          chatId,
-          loginUrl,
-        });
+        const qaUrl = this.buildLoginUrl(chatId, token).replace(/\?.*/, '') + '/qa?' + new URLSearchParams({
+          chatId: String(chatId),
+          token,
+          source: 'telegram',
+          ts: Date.now().toString(),
+        }).toString();
 
         await this.sendMessageWithLink(
           chatId,
-          '🚀 Open AI Earn Bot App',
-          loginUrl,
-          'Click the link below to access the application instantly:',
+          '📚 Q&A - Questions & Answers',
+          this.ensureHttps(qaUrl),
+          'Get answers to frequently asked questions about AI Earn Bot.'
         );
-        console.log('💬 [TELEGRAM] Sent /link response with login URL', { chatId });
+        console.log('💬 [TELEGRAM] Sent /qa response', { chatId });
       } catch (error: any) {
-        console.error('❌ [TELEGRAM] Failed to generate link:', error);
+        console.error('❌ [TELEGRAM] Failed to process /qa:', error);
         await this.bot!.sendMessage(
           chatId,
-          '❌ Could not create a login link right now. Please try /start again shortly.',
+          '❌ Could not access Q&A right now. Please try /start first.',
+        );
+      }
+    });
+
+    // Official News command
+    this.bot.onText(/\/news/, async (msg: Message) => {
+      const chatId = this.getChatId(msg);
+      console.log('⚡ [TELEGRAM] /news command received', { chatId });
+
+      try {
+        const { token } = await this.ensureUserAndToken(msg);
+        const newsUrl = this.buildLoginUrl(chatId, token).replace(/\?.*/, '') + '/news?' + new URLSearchParams({
+          chatId: String(chatId),
+          token,
+          source: 'telegram',
+          ts: Date.now().toString(),
+        }).toString();
+
+        await this.sendMessageWithLink(
+          chatId,
+          '📢 Official News',
+          this.ensureHttps(newsUrl),
+          'Stay updated with the latest official news and announcements from AI Earn Bot.'
+        );
+        console.log('💬 [TELEGRAM] Sent /news response', { chatId });
+      } catch (error: any) {
+        console.error('❌ [TELEGRAM] Failed to process /news:', error);
+        await this.bot!.sendMessage(
+          chatId,
+          '❌ Could not access news right now. Please try /start first.',
+        );
+      }
+    });
+
+    // Support command
+    this.bot.onText(/\/support/, async (msg: Message) => {
+      const chatId = this.getChatId(msg);
+      console.log('⚡ [TELEGRAM] /support command received', { chatId });
+
+      try {
+        const { token } = await this.ensureUserAndToken(msg);
+        const supportUrl = this.buildLoginUrl(chatId, token).replace(/\?.*/, '') + '/support?' + new URLSearchParams({
+          chatId: String(chatId),
+          token,
+          source: 'telegram',
+          ts: Date.now().toString(),
+        }).toString();
+
+        await this.sendMessageWithLink(
+          chatId,
+          '👤 Support',
+          this.ensureHttps(supportUrl),
+          'Need help? Contact our support team for assistance with your account or any questions.'
+        );
+        console.log('💬 [TELEGRAM] Sent /support response', { chatId });
+      } catch (error: any) {
+        console.error('❌ [TELEGRAM] Failed to process /support:', error);
+        await this.bot!.sendMessage(
+          chatId,
+          '❌ Could not access support right now. Please try /start first.',
+        );
+      }
+    });
+
+    // Introduction command
+    this.bot.onText(/\/(intro|introduction)/, async (msg: Message) => {
+      const chatId = this.getChatId(msg);
+      console.log('⚡ [TELEGRAM] /intro or /introduction command received', { chatId });
+
+      try {
+        const { token } = await this.ensureUserAndToken(msg);
+        const introUrl = this.buildLoginUrl(chatId, token).replace(/\?.*/, '') + '/introduction?' + new URLSearchParams({
+          chatId: String(chatId),
+          token,
+          source: 'telegram',
+          ts: Date.now().toString(),
+        }).toString();
+
+        await this.sendMessageWithLink(
+          chatId,
+          '📖 Introduction',
+          this.ensureHttps(introUrl),
+          'Learn about AI Earn Bot, how it works, and get started with your investment journey.'
+        );
+        console.log('💬 [TELEGRAM] Sent /introduction response', { chatId });
+      } catch (error: any) {
+        console.error('❌ [TELEGRAM] Failed to process /introduction:', error);
+        await this.bot!.sendMessage(
+          chatId,
+          '❌ Could not access introduction right now. Please try /start first.',
+        );
+      }
+    });
+
+    // Language command
+    this.bot.onText(/\/language/, async (msg: Message) => {
+      const chatId = this.getChatId(msg);
+      console.log('⚡ [TELEGRAM] /language command received', { chatId });
+
+      try {
+        const { token } = await this.ensureUserAndToken(msg);
+        const languageUrl = this.buildLoginUrl(chatId, token).replace(/\?.*/, '') + '/language?' + new URLSearchParams({
+          chatId: String(chatId),
+          token,
+          source: 'telegram',
+          ts: Date.now().toString(),
+        }).toString();
+
+        await this.sendMessageWithLink(
+          chatId,
+          '🌐 Language Settings',
+          this.ensureHttps(languageUrl),
+          'Change your preferred language for the AI Earn Bot interface.'
+        );
+        console.log('💬 [TELEGRAM] Sent /language response', { chatId });
+      } catch (error: any) {
+        console.error('❌ [TELEGRAM] Failed to process /language:', error);
+        await this.bot!.sendMessage(
+          chatId,
+          '❌ Could not access language settings right now. Please try /start first.',
+        );
+      }
+    });
+
+    // Referral command
+    this.bot.onText(/\/referral/, async (msg: Message) => {
+      const chatId = this.getChatId(msg);
+      console.log('⚡ [TELEGRAM] /referral command received', { chatId });
+
+      try {
+        const { token } = await this.ensureUserAndToken(msg);
+        const referralUrl = this.buildLoginUrl(chatId, token).replace(/\?.*/, '') + '/friends?' + new URLSearchParams({
+          chatId: String(chatId),
+          token,
+          source: 'telegram',
+          ts: Date.now().toString(),
+        }).toString();
+
+        await this.sendMessageWithLink(
+          chatId,
+          '👥 Referral Program',
+          this.ensureHttps(referralUrl),
+          'Invite friends and earn rewards! Share your referral link and get bonuses when they join.'
+        );
+        console.log('💬 [TELEGRAM] Sent /referral response', { chatId });
+      } catch (error: any) {
+        console.error('❌ [TELEGRAM] Failed to process /referral:', error);
+        await this.bot!.sendMessage(
+          chatId,
+          '❌ Could not access referral program right now. Please try /start first.',
         );
       }
     });

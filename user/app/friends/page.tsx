@@ -364,26 +364,7 @@ export default function FriendsPage() {
           </div>
         )}
 
-        {/* Referral Bonus Card - New Design */}
-        <div className="bg-[#7B1FA2] rounded-3xl p-5 flex items-center justify-between shadow-lg">
-          <div>
-            <h2 className="text-lg font-bold text-white mb-1">Referral Bonus</h2>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-white">$0</span>
-              <span className="text-sm text-white/90 underline decoration-1 underline-offset-2">$0 pending</span>
-            </div>
-          </div>
-          <button
-            disabled={pendingBonus === 0}
-            className={`px-8 py-2 rounded-full font-bold text-white shadow-md transition-all ${pendingBonus > 0
-              ? 'bg-gradient-to-b from-gray-300 to-gray-400 hover:from-gray-200 hover:to-gray-300 active:scale-95 text-gray-800'
-              : 'bg-[#C4C4C4] text-white cursor-not-allowed'
-              }`}
-          >
-            Claim
-          </button>
-        </div>
-
+      
         {/* Stats Card */}
         {isStatsLoading ? (
           <Card>

@@ -294,66 +294,66 @@ export default function Home() {
         )}
 
         {/* Weekly Power Trade Banner */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#1E1B4B] via-[#0F172A] to-[#0B1324] shadow-lg border border-white/10 text-white">
-          <div className="absolute inset-0 opacity-30 pointer-events-none">
-            <div className="absolute top-0 right-0 w-44 h-44 bg-pink-500/30 blur-3xl rounded-full"></div>
-            <div className="absolute bottom-0 left-0 w-36 h-36 bg-indigo-500/30 blur-3xl rounded-full"></div>
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-[#1E1B4B] via-[#0F172A] to-[#0B1324] shadow-lg border border-white/10 text-white">
+          <div className="absolute inset-0 opacity-20 pointer-events-none">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/30 blur-2xl rounded-full"></div>
+            <div className="absolute bottom-0 left-0 w-20 h-20 bg-indigo-500/30 blur-2xl rounded-full"></div>
           </div>
 
-          <div className="relative p-5 sm:p-6 flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] sm:text-xs tracking-[0.4em] uppercase text-pink-200">Weekly Power Trade</p>
-                <h2 className="text-2xl font-bold">Earn {weeklyRoiLabel}</h2>
-                <p className="text-sm text-white/80 mt-1">
-                  Invest {formatAmountRange(weeklyPlan)} • {weeklyWindowLabel}
+          <div className="relative p-2 sm:p-2.5 flex flex-col gap-1.5">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <p className="text-[8px] sm:text-[9px] tracking-[0.2em] uppercase text-pink-200 mb-0.5 leading-none">Weekly Power Trade</p>
+                <h2 className="text-base sm:text-lg font-bold leading-tight">Earn {weeklyRoiLabel}</h2>
+                <p className="text-[10px] text-white/80 leading-tight">
+                  {formatAmountRange(weeklyPlan)} • {weeklyWindowLabel}
                 </p>
                 {isWeeklyStatusLoading && (
-                  <p className="text-[10px] text-white/60">Updating schedule...</p>
+                  <p className="text-[8px] text-white/60">Updating...</p>
                 )}
                 {weeklyCountdown && (
-                  <p className="text-xs text-white/70">
+                  <p className="text-[9px] text-white/70">
                     {weeklyCountdownPrefix} {weeklyCountdown}
                   </p>
                 )}
                 {!canJoinWeekly && reminderStartsLabel && (
-                  <p className="text-[10px] text-white/60">
-                    Reminder day starts {reminderStartsLabel}
+                  <p className="text-[8px] text-white/60">
+                    Reminder: {reminderStartsLabel}
                   </p>
                 )}
               </div>
-              <div className="text-right">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border border-white/30 text-white">
+              <div className="text-right flex-shrink-0">
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-semibold border border-white/30 text-white">
                   {weeklyBadgeText}
                 </span>
-                <p className="text-sm text-white/80 mt-2 max-w-[200px]">{weeklyStatusLabel}</p>
+                <p className="text-[10px] text-white/80 mt-0.5 max-w-[120px] leading-tight">{weeklyStatusLabel}</p>
                 {!canJoinWeekly && nextWindowStartLabel && (
-                  <p className="text-[11px] text-white/60 mt-1">Next slot: {nextWindowStartLabel}</p>
+                  <p className="text-[8px] text-white/60">Next: {nextWindowStartLabel}</p>
                 )}
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/10 rounded-full px-3 py-1 text-xs text-white">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <div className="flex flex-wrap gap-1.5 mt-0.5">
+              <div className="inline-flex items-center gap-1 bg-white/10 border border-white/10 rounded-full px-1.5 py-0.5 text-[9px] text-white">
+                <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse"></span>
                 {formatAmountRange(weeklyPlan)}
               </div>
-              <div className="inline-flex items-center gap-2 bg-white/10 border border-white/10 rounded-full px-3 py-1 text-xs text-white">
-                <span className="w-2 h-2 rounded-full bg-pink-400"></span>
-                {weeklyPlan?.payoutDelayHours ?? 72} hrs release
+              <div className="inline-flex items-center gap-1 bg-white/10 border border-white/10 rounded-full px-1.5 py-0.5 text-[9px] text-white">
+                <span className="w-1 h-1 rounded-full bg-pink-400"></span>
+                {weeklyPlan?.payoutDelayHours ?? 72} hrs
               </div>
               {weeklyStatus?.isReminderWindow && (
-                <div className="inline-flex items-center gap-2 bg-white/10 border border-white/10 rounded-full px-3 py-1 text-xs text-white">
-                  <span className="w-2 h-2 rounded-full bg-yellow-300"></span>
-                  Reminder day active
+                <div className="inline-flex items-center gap-1 bg-white/10 border border-white/10 rounded-full px-1.5 py-0.5 text-[9px] text-white">
+                  <span className="w-1 h-1 rounded-full bg-yellow-300"></span>
+                  Reminder
                 </div>
               )}
             </div>
 
             <Button
               variant="primary"
-              size="md"
-              className="w-full sm:w-auto"
+              size="sm"
+              className="w-full text-xs py-1.5 h-auto mt-0.5"
               onClick={() => setIsBuyTPModalOpen(true)}
               disabled={!canJoinWeekly}
             >
