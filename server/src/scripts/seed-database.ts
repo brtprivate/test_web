@@ -148,17 +148,21 @@ async function seedUser() {
   const userId = String(savedUser._id);
 
   // Create income transaction for welcome bonus
-  try {
-    await incomeTransactionService.createIncomeTransaction({
-      user: userId,
-      incomeType: 'bonus',
-      amount: welcomeBonusAmount,
-      description: `Welcome bonus - $${welcomeBonusAmount}`,
-      incomeDate: new Date(),
-    });
-    console.log('   ✅ Welcome bonus transaction created');
-  } catch (error: any) {
-    console.log('   ⚠️  Could not create welcome bonus transaction:', error.message);
+  if (welcomeBonusAmount > 0) {
+    try {
+      await incomeTransactionService.createIncomeTransaction({
+        user: userId,
+        incomeType: 'bonus',
+        amount: welcomeBonusAmount,
+        description: `Welcome bonus - $${welcomeBonusAmount}`,
+        incomeDate: new Date(),
+      });
+      console.log('   ✅ Welcome bonus transaction created');
+    } catch (error: any) {
+      console.log('   ⚠️  Could not create welcome bonus transaction:', error.message);
+    }
+  } else {
+    console.log('   ℹ️  Welcome bonus disabled, skipping bonus transaction.');
   }
 
   console.log('   ✅ User created:');
@@ -179,7 +183,7 @@ async function seedSettings() {
     // Welcome Bonus Settings
     {
       key: 'welcome_bonus_amount',
-      value: 0.5,
+      value: 0,
       type: 'number' as const,
       description: 'Welcome bonus amount for new users (in USDT)',
       category: 'bonus' as const,
@@ -187,7 +191,7 @@ async function seedSettings() {
     },
     {
       key: 'auto_invest_welcome_bonus',
-      value: true,
+      value: false,
       type: 'boolean' as const,
       description: 'Automatically invest welcome bonus',
       category: 'bonus' as const,

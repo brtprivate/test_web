@@ -287,7 +287,7 @@ export default function Home() {
                 size="md"
                 onClick={() => (window.location.href = '/login')}
               >
-                Go to Login 1
+                Go to Login 
               </Button>
             </div>
           </Card>

@@ -146,54 +146,6 @@ export const AdminProfileView = () => {
         </p>
       </header>
 
-      <Card
-        title="Profile details"
-        subtitle="Read-only data mirrored from the backend response."
-        actions={
-          <Button
-            type="button"
-            variant="outline"
-            icon={<RefreshCw size={16} />}
-            onClick={handleRefreshProfile}
-            loading={isProfileRefreshing}
-          >
-            Refresh data
-          </Button>
-        }
-      >
-        {accountInfo.length > 0 && (
-          <dl className="grid gap-4 md:grid-cols-2">
-            {accountInfo.map((item) => (
-              <div key={item.label} className="rounded-2xl border border-white/10 p-4 break-words">
-                <dt className="text-xs uppercase tracking-[0.3em] text-[--color-mutedForeground]">
-                  {item.label}
-                </dt>
-                <dd className="mt-2 text-base font-semibold text-[--color-foreground]">
-                  {item.value}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        )}
-        {sessionMeta.length > 0 && (
-          <>
-            <hr className="my-6 border-white/5" />
-            <dl className="grid gap-4 md:grid-cols-2">
-              {sessionMeta.map((item) => (
-                <div key={item.label} className="rounded-2xl border border-white/5 p-4">
-                  <dt className="text-xs uppercase tracking-[0.3em] text-[--color-mutedForeground]">
-                    {item.label}
-                  </dt>
-                  <dd className="mt-2 text-base font-semibold text-[--color-foreground]">
-                    {item.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </>
-        )}
-      </Card>
-
       <Card title="Change password" subtitle="Rotate credentials anytime you suspect risk.">
         <form className="space-y-4" onSubmit={handlePasswordSubmit}>
           <Input

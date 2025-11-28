@@ -1,7 +1,7 @@
 "use client";
 
-import { Layers, TrendingUp, DollarSign } from 'lucide-react';
-import { IncomeBoardBase } from './shared/IncomeBoardBase';
+import { TrendingUp } from 'lucide-react';
+import { IncomeBoardBase, SortButton } from './shared/IncomeBoardBase';
 import type { Income, IncomeStatus } from '@/features/income/types';
 
 export const DailyROIBoard = () => {
@@ -10,63 +10,93 @@ export const DailyROIBoard = () => {
       incomeType="daily_roi"
       title="Daily ROI Management"
       subtitle="Track and manage all daily ROI income from investments."
-      statsCard={(totals, totalRecords, formatCurrency) => (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent p-4 transition-all duration-300 hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/10">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-[--color-mutedForeground]">
-                  Total Daily ROI
-                </p>
-                <p className="text-2xl font-bold text-[--color-foreground] md:text-3xl">
-                  {formatCurrency(totals.totalAmount)}
-                </p>
-                <div className="mt-2 flex items-center gap-1 text-xs text-[--color-mutedForeground]">
-                  <DollarSign className="h-3 w-3" />
-                  <span>All time</span>
-                </div>
-              </div>
-              <div className="rounded-xl bg-emerald-500/20 p-2.5">
-                <TrendingUp className="h-5 w-5 text-emerald-400" />
-              </div>
+      statsCard={(totals, totalRecords, formatCurrency) => {
+        const avgRoi = totalRecords ? totals.totalAmount / totalRecords : 0;
+        const topLevel = totals.levelStats?.[0];
+        return (
+          <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-4">
+            <div className="mb-2 flex items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]">
+              <TrendingUp className="h-4 w-4 text-[--color-primary]" />
+              Snapshot
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs">
+              <SnapshotChip label="Total ROI" value={formatCurrency(totals.totalAmount)} />
+              <SnapshotChip label="Records" value={totalRecords.toString()} />
+              <SnapshotChip label="Avg / rec" value={formatCurrency(avgRoi)} />
+              {topLevel && (
+                <SnapshotChip
+                  label={`Level ${topLevel._id}`}
+                  value={`${topLevel.count} rec`}
+                />
+              )}
+              <SnapshotChip label="Max Wallet" value={formatCurrency(totals.levelStats?.[0]?.totalAmount || totals.totalAmount)} />
             </div>
           </div>
-          <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent p-4 transition-all duration-300 hover:border-blue-500/30 hover:shadow-lg hover:shadow-blue-500/10">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-[0.2em] text-[--color-mutedForeground]">
-                  Total Records
-                </p>
-                <p className="text-2xl font-bold text-[--color-foreground] md:text-3xl">
-                  {totalRecords}
-                </p>
-              </div>
-              <div className="rounded-xl bg-blue-500/20 p-2.5">
-                <Layers className="h-5 w-5 text-blue-400" />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      tableColumns={
+        );
+      }}
+      tableColumns={({ sortField, handleSort, renderSortIcon }) => (
         <>
-          <th className="min-w-[200px]">User</th>
-          <th className="min-w-[180px]">Investment Plan</th>
-          <th className="min-w-[140px]">Investment Amount</th>
-          <th className="min-w-[140px]">ROI Amount</th>
-          <th className="min-w-[150px]">Description</th>
-          <th className="min-w-[120px]">Status</th>
-          <th className="min-w-[150px]">Income Date</th>
+          <th className="min-w-[200px] text-left text-xs uppercase tracking-[0.15em] text-[--color-mutedForeground]">
+            User
+          </th>
+          <th className="min-w-[180px] text-left text-xs uppercase tracking-[0.15em] text-[--color-mutedForeground]">
+            Investment Plan
+          </th>
+          <th className="min-w-[140px] text-left">
+            <SortButton
+              label="Investment Amount"
+              field="amount"
+              activeField={sortField}
+              onSort={handleSort}
+            >
+              {renderSortIcon('amount')}
+            </SortButton>
+          </th>
+          <th className="min-w-[140px] text-left">
+            <SortButton
+              label="ROI Amount"
+              field="amount"
+              activeField={sortField}
+              onSort={handleSort}
+            >
+              {renderSortIcon('amount')}
+            </SortButton>
+          </th>
+          <th className="min-w-[150px] text-left text-xs uppercase tracking-[0.15em] text-[--color-mutedForeground]">
+            Description
+          </th>
+          <th className="min-w-[120px] text-left text-xs uppercase tracking-[0.15em] text-[--color-mutedForeground]">
+            Status
+          </th>
+          <th className="min-w-[150px] text-left">
+            <SortButton
+              label="Income Date"
+              field="incomeDate"
+              activeField={sortField}
+              onSort={handleSort}
+            >
+              {renderSortIcon('incomeDate')}
+            </SortButton>
+          </th>
         </>
-      }
+      )}
       renderRow={(income, formatCurrency, formatDate, timeAgo, getStatusBadge) => {
         const userName = income.user?.name || income.user?.email || 'Unknown';
-        const userEmail = income.user?.email || 'No email';
+        const userChatId = income.user?.telegramChatId;
+        const userIdentifier = income.user?.telegramUsername
+          ? `@${income.user?.telegramUsername}`
+          : userChatId
+            ? `Chat ID ${userChatId}`
+            : income.user?.email || 'No contact';
         const userTelegram = income.user?.telegramUsername;
         const investmentAmount = income.investment?.amount || 0;
         const planName = income.investment?.plan?.name || 'N/A';
         const planDailyROI = income.investment?.plan?.dailyROI || 0;
-        const planTermDays = income.investment?.plan?.termDays || 0;
+        const planTermDays = income.investment?.plan?.termDays;
+        const planDurationLabel =
+          typeof planTermDays === 'number' && planTermDays > 0
+            ? `${planTermDays} days`
+            : 'Duration pending';
 
         return (
           <tr key={income._id} className="transition-colors duration-150 hover:bg-white/5">
@@ -80,7 +110,7 @@ export const DailyROIBoard = () => {
                     </span>
                   )}
                 </div>
-                <span className="text-xs text-[--color-mutedForeground]">{userEmail}</span>
+                <span className="text-xs text-[--color-mutedForeground]">{userIdentifier}</span>
               </div>
             </td>
             <td>
@@ -92,7 +122,7 @@ export const DailyROIBoard = () => {
                   <div className="flex gap-2 text-xs text-[--color-mutedForeground]">
                     <span>{planDailyROI}% ROI</span>
                     <span>•</span>
-                    <span>{planTermDays} days</span>
+                    <span>{planDurationLabel}</span>
                   </div>
                 </div>
               ) : (
@@ -143,4 +173,11 @@ export const DailyROIBoard = () => {
     />
   );
 };
+
+const SnapshotChip = ({ label, value }: { label: string; value: string }) => (
+  <div className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.6rem] uppercase tracking-[0.3em] text-[--color-mutedForeground]">
+    <span>{label}</span>
+    <span className="text-[--color-foreground]">{value}</span>
+  </div>
+);
 

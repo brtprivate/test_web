@@ -8,6 +8,8 @@ export interface ReferralBonusTier {
   value: number;
 }
 
+type SeedSetting = CreateSettingDto & { forceUpdate?: boolean };
+
 export class SettingService {
   async createSetting(data: CreateSettingDto): Promise<ISetting> {
     const setting = new Setting(data);
@@ -52,21 +54,23 @@ export class SettingService {
 
   // Initialize default settings
   async initializeDefaultSettings(): Promise<void> {
-    const defaultSettings = [
+    const defaultSettings: SeedSetting[] = [
       // Bonus Settings
       {
         key: 'welcome_bonus_amount',
-        value: 0.5,
+        value: 0,
         type: 'number' as const,
         description: 'Welcome bonus amount for new users',
         category: 'bonus' as const,
+        forceUpdate: true,
       },
       {
         key: 'auto_invest_welcome_bonus',
-        value: true,
+        value: false,
         type: 'boolean' as const,
         description: 'Automatically invest welcome bonus',
         category: 'bonus' as const,
+        forceUpdate: true,
       },
       
       // Referral Settings
@@ -122,20 +126,31 @@ export class SettingService {
     ];
 
     for (const settingData of defaultSettings) {
-      const existing = await Setting.findOne({ key: settingData.key });
+      const { forceUpdate, ...payload } = settingData;
+      const existing = await Setting.findOne({ key: payload.key });
       if (!existing) {
-        await Setting.create(settingData);
+        await Setting.create(payload);
+        continue;
+      }
+
+      if (forceUpdate) {
+        existing.value = payload.value;
+        existing.type = payload.type;
+        existing.description = payload.description;
+        existing.category = payload.category;
+        existing.isActive = true;
+        await existing.save();
       }
     }
   }
 
   // Helper methods to get specific settings
   async getWelcomeBonusAmount(): Promise<number> {
-    return await this.getSettingValue<number>('welcome_bonus_amount', 0.5);
+    return await this.getSettingValue<number>('welcome_bonus_amount', 0);
   }
 
   async shouldAutoInvestWelcomeBonus(): Promise<boolean> {
-    return await this.getSettingValue<boolean>('auto_invest_welcome_bonus', true);
+    return await this.getSettingValue<boolean>('auto_invest_welcome_bonus', false);
   }
 
   async getTeamLevelIncomePercentage(): Promise<number> {

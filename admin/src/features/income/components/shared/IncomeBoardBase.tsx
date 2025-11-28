@@ -90,14 +90,22 @@ export const SortButton = ({
   </button>
 );
 
+interface TableColumnHelpers {
+  sortField: SortField;
+  sortDirection: SortDirection;
+  handleSort: (field: SortField) => void;
+  renderSortIcon: (field: SortField) => ReactNode;
+}
+
 interface IncomeBoardBaseProps {
   incomeType?: IncomeType | 'all';
   title: string;
   subtitle: string;
   statsCard?: (totals: { totalAmount: number; levelStats: Array<{ _id: number; count: number; totalAmount: number }> }, totalRecords: number, formatCurrency: (value: number) => string) => ReactNode;
   showLevelFilter?: boolean;
+  compactFilters?: boolean;
   additionalFilters?: ReactNode;
-  tableColumns: ReactNode;
+  tableColumns: ReactNode | ((helpers: TableColumnHelpers) => ReactNode);
   renderRow?: (income: any, formatCurrency: (value: number) => string, formatDate: (date: string) => string, timeAgo: (date: string) => string, getStatusBadge: (status: IncomeStatus) => ReactNode) => ReactNode;
 }
 
@@ -106,11 +114,12 @@ export const IncomeBoardBase = ({
   title,
   subtitle,
   statsCard,
-      showLevelFilter = false,
-      additionalFilters,
-      tableColumns,
-      renderRow,
-    }: IncomeBoardBaseProps) => {
+  showLevelFilter = false,
+  compactFilters = false,
+  additionalFilters,
+  tableColumns,
+  renderRow,
+}: IncomeBoardBaseProps) => {
   const [search, setSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -180,7 +189,7 @@ export const IncomeBoardBase = ({
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2,
-      maximumFractionDigits: 8,
+      maximumFractionDigits: 2,
       useGrouping: true,
     }).format(value);
   };
@@ -242,6 +251,13 @@ export const IncomeBoardBase = ({
     return levels;
   }, [totals.levelStats]);
 
+  const filterStackSpacing = compactFilters ? 'space-y-3' : 'space-y-4';
+  const filterGridGap = compactFilters ? 'gap-3' : 'gap-4';
+  const searchLabelClass = compactFilters
+    ? 'mb-1.5 block text-[0.7rem] font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]'
+    : 'mb-2 block text-xs font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]';
+  const activeFiltersPadding = compactFilters ? 'p-2.5' : 'p-3';
+
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Stats Overview Cards */}
@@ -290,11 +306,11 @@ export const IncomeBoardBase = ({
       )}
 
       <Card title={title} subtitle={subtitle}>
-        <div className="grid gap-6 lg:grid-cols-[1.5fr,1fr]">
+        <div className="space-y-4">
           {/* Filters Section */}
-          <div className="space-y-4">
+          <div className={filterStackSpacing}>
             <div>
-              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]">
+              <label className={searchLabelClass}>
                 Search & Filter
               </label>
               <div className="relative">
@@ -303,7 +319,9 @@ export const IncomeBoardBase = ({
                   placeholder="Search by user name, email, description, reference ID..."
                   value={search}
                   onChange={(event) => setSearch(event.currentTarget.value)}
-                  className="pl-10 pr-10"
+                  className={`pl-10 pr-10 ${
+                    compactFilters ? 'h-11 rounded-2xl border border-white/10 bg-transparent' : ''
+                  }`}
                 />
                 {search && (
                   <button
@@ -318,7 +336,7 @@ export const IncomeBoardBase = ({
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className={`grid ${filterGridGap} sm:grid-cols-2`}>
               {showLevelFilter && (
                 <SelectField
                   label="Level"
@@ -360,7 +378,9 @@ export const IncomeBoardBase = ({
 
             {/* Active Filters Display */}
             {(levelFilter !== 'all' || statusFilter !== 'all' || search) && (
-              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-3">
+              <div
+                className={`flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-white/5 ${activeFiltersPadding}`}
+              >
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[--color-mutedForeground]">
                   Active filters:
                 </span>
@@ -413,35 +433,6 @@ export const IncomeBoardBase = ({
                 </button>
               </div>
             )}
-          </div>
-
-          {/* Summary Panel */}
-          <div className="space-y-4 rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-5">
-            <header className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]">
-              <TrendingUp className="h-4 w-4 text-[--color-primary]" />
-              Summary
-            </header>
-            <div className="space-y-4">
-              <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                <p className="mb-1 text-xs text-[--color-mutedForeground]">Total records</p>
-                <p className="text-2xl font-bold text-[--color-foreground]">{totalRecords}</p>
-              </div>
-              <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                <p className="mb-1 text-xs text-[--color-mutedForeground]">Total amount</p>
-                <p className="text-lg font-semibold text-emerald-400">
-                  {formatCurrency(totals.totalAmount)}
-                </p>
-              </div>
-              <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                <p className="mb-1 text-xs text-[--color-mutedForeground]">Current view</p>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[--color-foreground]">
-                  Page {currentPage} of {totalPages}
-                </p>
-                <p className="mt-1 text-xs text-[--color-mutedForeground]">
-                  Showing {pageRangeStart}-{pageRangeEnd} of {totalRecords}
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </Card>
@@ -497,7 +488,16 @@ export const IncomeBoardBase = ({
             <div className="scroll-area -mx-2 overflow-x-auto px-2">
               <table className="table-grid min-w-full">
                 <thead>
-                  <tr className="bg-white/5">{tableColumns}</tr>
+                  <tr className="bg-white/5">
+                    {typeof tableColumns === 'function'
+                      ? tableColumns({
+                          sortField,
+                          sortDirection,
+                          handleSort,
+                          renderSortIcon,
+                        })
+                      : tableColumns}
+                  </tr>
                 </thead>
                 <tbody>
                   {incomes.map((income) => {
@@ -506,8 +506,13 @@ export const IncomeBoardBase = ({
                     }
 
                     const userName = income.user?.name || income.user?.email || 'Unknown';
-                    const userEmail = income.user?.email || 'No email';
                     const userTelegram = income.user?.telegramUsername;
+                    const userChatId = income.user?.telegramChatId;
+                    const userIdentifier = userTelegram
+                      ? `@${userTelegram}`
+                      : userChatId
+                        ? `Chat ID ${userChatId}`
+                        : income.user?.email || 'No contact';
 
                     return (
                       <tr
@@ -525,7 +530,7 @@ export const IncomeBoardBase = ({
                               )}
                             </div>
                             <span className="text-xs text-[--color-mutedForeground]">
-                              {userEmail}
+                              {userIdentifier}
                             </span>
                           </div>
                         </td>

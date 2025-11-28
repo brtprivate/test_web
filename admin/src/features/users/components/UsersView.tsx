@@ -6,8 +6,6 @@ import {
   ArrowUpDown,
   ChevronLeft,
   ChevronRight,
-  Filter,
-  RefreshCcw,
   Search,
   ShieldCheck,
   Sparkles,
@@ -16,14 +14,7 @@ import {
   Users,
   DollarSign,
   Wallet,
-  Award,
   X,
-  CheckCircle2,
-  AlertTriangle,
-  Trophy,
-  BarChart3,
-  Info,
-  Zap,
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -99,11 +90,6 @@ export const UsersView = () => {
   const pageRangeStart = totalRecords === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const pageRangeEnd =
     totalRecords === 0 ? 0 : Math.min(currentPage * pageSize, totalRecords);
-
-  const recentHighEarners = useMemo(
-    () => [...users].sort((a, b) => b.totalEarned - a.totalEarned).slice(0, 3),
-    [users]
-  );
 
   useEffect(() => {
     setPage(1);
@@ -283,11 +269,11 @@ export const UsersView = () => {
           </div>
         }
       >
-        <div className="grid gap-6 lg:grid-cols-[1.5fr,1fr]">
+        <div className="space-y-4">
           {/* Filters Section */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div>
-              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]">
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]">
                 Search & Filter
               </label>
               <div className="relative">
@@ -311,7 +297,7 @@ export const UsersView = () => {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <SelectField
                 label="Status"
                 value={statusFilter}
@@ -356,7 +342,7 @@ export const UsersView = () => {
 
             {/* Active Filters Display */}
             {(statusFilter !== 'all' || bonusFilter !== 'all' || capitalFilter !== 'all' || search) && (
-              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-3">
+              <div className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-white/5 p-2.5">
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[--color-mutedForeground]">
                   Active filters:
                 </span>
@@ -423,293 +409,8 @@ export const UsersView = () => {
               </div>
             )}
           </div>
-
-          {/* Performance Snapshot */}
-          <div className="space-y-4 rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-5">
-            <header className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]">
-              <TrendingUp className="h-4 w-4 text-[--color-primary]" />
-              Performance snapshot
-            </header>
-            <div className="space-y-4">
-              <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                <p className="mb-1 text-xs text-[--color-mutedForeground]">Deployed capital</p>
-                <p className="text-2xl font-bold text-[--color-foreground]">
-                  {formatCurrency(totals.totalInvested)}
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                  <p className="mb-1 text-xs text-[--color-mutedForeground]">Earnings</p>
-                  <p className="text-lg font-semibold text-emerald-400">
-                    {formatCurrency(totals.totalEarned)}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                  <p className="mb-1 text-xs text-[--color-mutedForeground]">Active</p>
-                  <p className="text-lg font-semibold text-[--color-foreground]">
-                    {totals.active}
-                    <span className="ml-1 text-xs text-[--color-mutedForeground]">/ {totalRecords}</span>
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center gap-4 pt-2 text-xs uppercase tracking-[0.2em] text-[--color-mutedForeground]">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-3.5 w-3.5 text-[--color-primary]" />
-                  <span>{totals.whales} whales</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Award className="h-3.5 w-3.5" />
-                  <span>{totals.bonusClaimed} bonuses</span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </Card>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        {/* Runtime Segmentation */}
-        <Card title="Runtime segmentation" subtitle="Live distribution overview">
-          <div className="space-y-4">
-            {/* Active Users */}
-            <div className="group relative overflow-hidden rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent p-4 transition-all hover:border-emerald-500/50 hover:shadow-lg hover:shadow-emerald-500/10">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="mb-2 flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/20">
-                      <Users className="h-4 w-4 text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[--color-mutedForeground]">
-                        Active
-                      </p>
-                      <p className="text-2xl font-bold text-emerald-400">{totals.active}</p>
-                    </div>
-                  </div>
-                  {totalRecords > 0 && (
-                    <div className="mt-3">
-                      <div className="mb-1.5 flex items-center justify-between text-xs">
-                        <span className="text-[--color-mutedForeground]">Available investors</span>
-                        <span className="font-semibold text-emerald-400">
-                          {Math.round((totals.active / totalRecords) * 100)}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500"
-                          style={{ width: `${(totals.active / totalRecords) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Suspended Users */}
-            <div className="group relative overflow-hidden rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-4 transition-all hover:border-amber-500/50 hover:shadow-lg hover:shadow-amber-500/10">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="mb-2 flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20">
-                      <ShieldCheck className="h-4 w-4 text-amber-400" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[--color-mutedForeground]">
-                        Suspended
-                      </p>
-                      <p className="text-2xl font-bold text-amber-400">
-                        {Math.max(totalRecords - totals.active, 0)}
-                      </p>
-                    </div>
-                  </div>
-                  {totalRecords > 0 && (
-                    <div className="mt-3">
-                      <div className="mb-1.5 flex items-center justify-between text-xs">
-                        <span className="text-[--color-mutedForeground]">Requires review</span>
-                        <span className="font-semibold text-amber-400">
-                          {Math.round(((totalRecords - totals.active) / totalRecords) * 100)}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all duration-500"
-                          style={{
-                            width: `${((totalRecords - totals.active) / totalRecords) * 100}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Bonus Claimed */}
-            <div className="group relative overflow-hidden rounded-xl border border-blue-500/30 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent p-4 transition-all hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="mb-2 flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20">
-                      <Award className="h-4 w-4 text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[--color-mutedForeground]">
-                        Bonus claimed
-                      </p>
-                      <p className="text-2xl font-bold text-blue-400">{totals.bonusClaimed}</p>
-                    </div>
-                  </div>
-                  <p className="mt-2 text-xs text-[--color-mutedForeground]">Promos used</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        {/* Capital Champions */}
-        <Card
-          title="Capital champions"
-          subtitle="Top earners this cycle"
-          actions={
-            <Button
-              variant="ghost"
-              icon={<RefreshCcw className="h-4 w-4" />}
-              onClick={() => refetch()}
-              loading={isFetching}
-              className="px-3 py-2 text-xs uppercase"
-            >
-              Refresh
-            </Button>
-          }
-        >
-          <div className="space-y-3">
-            {recentHighEarners.map((user, index) => {
-              const rankColors = [
-                'from-yellow-500/20 to-amber-500/20 text-yellow-400',
-                'from-slate-400/20 to-slate-500/20 text-slate-300',
-                'from-amber-600/20 to-amber-700/20 text-amber-400',
-              ];
-              const rankIcons = ['🥇', '🥈', '🥉'];
-              return (
-                <div
-                  key={user._id}
-                  className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-4 transition-all hover:border-white/20 hover:bg-white/10 hover:shadow-lg"
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${rankColors[index] || 'from-[--color-primary]/20 to-[--color-accent]/20 text-[--color-primary]'} text-lg font-bold shadow-lg`}
-                    >
-                      {index < 3 ? rankIcons[index] : index + 1}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-sm text-[--color-foreground]">{user.name}</p>
-                      <p className="mt-0.5 truncate text-xs text-[--color-mutedForeground]">
-                        {user.email ?? user.telegramUsername ?? 'N/A'}
-                      </p>
-                      {user.referralCode && (
-                        <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-[--color-mutedForeground]">
-                          Ref: {user.referralCode}
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-emerald-400">
-                        {formatCurrency(user.totalEarned)}
-                      </p>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[--color-mutedForeground]">
-                        earned
-                      </p>
-                      {user.totalInvested > 0 && (
-                        <p className="mt-1 text-xs text-[--color-mutedForeground]">
-                          Invested: {formatCurrency(user.totalInvested)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            {!recentHighEarners.length && (
-              <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center">
-                <Sparkles className="mx-auto mb-2 h-8 w-8 text-[--color-mutedForeground]" />
-                <p className="text-sm font-medium text-[--color-foreground]">No earnings data yet</p>
-                <p className="mt-1 text-xs text-[--color-mutedForeground]">
-                  Top earners will appear here once users start earning
-                </p>
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* Control Center */}
-        <Card title="Control center" subtitle="Fine-grained controls for the account directory">
-          <div className="space-y-4">
-            <div className="rounded-xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-4">
-              <div className="mb-3 flex items-center gap-2">
-                <Filter className="h-4 w-4 text-[--color-primary]" />
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[--color-mutedForeground]">
-                  Quick Actions
-                </p>
-              </div>
-              <div className="space-y-2 text-xs text-[--color-mutedForeground]">
-                <p className="flex items-start gap-2">
-                  <span className="mt-0.5 text-[--color-primary]">•</span>
-                  <span>Use filters to segment growth experiments, chase whales, or isolate risk.</span>
-                </p>
-                <p className="flex items-start gap-2">
-                  <span className="mt-0.5 text-[--color-primary]">•</span>
-                  <span>Click column headers to sort ascending/descending.</span>
-                </p>
-                <p className="flex items-start gap-2">
-                  <span className="mt-0.5 text-[--color-primary]">•</span>
-                  <span>Pagination keeps the table performant with large datasets.</span>
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                <div className="mb-1 flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5 text-[--color-mutedForeground]" />
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[--color-mutedForeground]">
-                    Total Results
-                  </p>
-                </div>
-                <p className="text-xl font-bold text-[--color-foreground]">{totalRecords}</p>
-                <p className="mt-1 text-[10px] text-[--color-mutedForeground]">accounts</p>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                <div className="mb-1 flex items-center gap-1.5">
-                  <TrendingUp className="h-3.5 w-3.5 text-[--color-mutedForeground]" />
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[--color-mutedForeground]">
-                    Total Pages
-                  </p>
-                </div>
-                <p className="text-xl font-bold text-[--color-foreground]">{totalPages}</p>
-                <p className="mt-1 text-[10px] text-[--color-mutedForeground]">pages</p>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-              <div className="mb-2 flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[--color-mutedForeground]">
-                  Current View
-                </p>
-                <span className="rounded-full bg-[--color-primary]/20 px-2 py-0.5 text-[10px] font-semibold text-[--color-primary]">
-                  {currentPage}/{totalPages}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-[--color-mutedForeground]">Showing</span>
-                <span className="font-semibold text-[--color-foreground]">
-                  {pageRangeStart}-{pageRangeEnd || 0}
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
 
       <Card title="Accounts directory" subtitle="Paginated, sortable intelligence grid">
         {isLoading ? (
@@ -922,13 +623,13 @@ const SelectField = ({
   onChange: (value: string) => void;
   options: { label: string; value: string }[];
 }) => (
-  <label className="flex flex-col gap-2">
-    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[--color-mutedForeground]">
+  <label className="flex flex-col gap-1.5">
+    <span className="text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-[--color-mutedForeground]">
       {label}
     </span>
     <div className="relative rounded-xl border border-white/10 bg-white/5 transition-all hover:border-white/20 focus-within:border-[--color-primary] focus-within:ring-2 focus-within:ring-[--color-primary]/20">
       <select
-        className="w-full appearance-none bg-transparent px-3 py-2.5 text-sm font-medium text-[--color-foreground] outline-none"
+        className="w-full appearance-none bg-transparent px-3 py-2 text-sm font-medium text-[--color-foreground] outline-none"
         value={value}
         onChange={(event) => onChange(event.currentTarget.value)}
       >

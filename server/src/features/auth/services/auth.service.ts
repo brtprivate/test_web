@@ -79,7 +79,8 @@ export class AuthService {
 
     // Get welcome bonus amount from settings (dynamic)
     const welcomeBonusAmount = await settingService.getWelcomeBonusAmount();
-    const shouldAutoInvest = await settingService.shouldAutoInvestWelcomeBonus();
+    const hasWelcomeBonus = welcomeBonusAmount > 0;
+    const shouldAutoInvest = hasWelcomeBonus && (await settingService.shouldAutoInvestWelcomeBonus());
 
     // Generate wallet address and private key for user (MANDATORY)
     let walletAddress: string;
@@ -167,7 +168,7 @@ export class AuthService {
       referredBy,
       isActive: true,
       investmentWallet: 0, // Start with 0, will add welcome bonus via service
-      freeBonusReceived: true,
+      freeBonusReceived: hasWelcomeBonus,
       walletAddress, // Auto-generated wallet address
       privateKey, // Auto-generated private key
     });
@@ -175,15 +176,19 @@ export class AuthService {
     const savedUser = await user.save();
     const userId = String(savedUser._id);
 
-    // Add welcome bonus to investment wallet (creates transaction)
-    await walletService.addToInvestmentWallet(
-      userId,
-      welcomeBonusAmount,
-      `Welcome bonus - $${welcomeBonusAmount}`
-    );
+    if (hasWelcomeBonus) {
+      // Add welcome bonus to investment wallet (creates transaction)
+      await walletService.addToInvestmentWallet(
+        userId,
+        welcomeBonusAmount,
+        `Welcome bonus - $${welcomeBonusAmount}`
+      );
+    } else {
+      console.log('ℹ️ Welcome bonus disabled via settings; skipping bonus funding.');
+    }
 
     // Auto invest welcome bonus if setting is enabled
-    if (shouldAutoInvest && welcomeBonusAmount > 0) {
+    if (shouldAutoInvest && hasWelcomeBonus) {
       try {
         // Find the appropriate plan for this amount
         const plan = await InvestmentPlan.findOne({

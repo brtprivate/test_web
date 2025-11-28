@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { NAV_ITEMS } from '@/components/layout/navLinks';
-import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { useAppSelector } from '@/hooks/useAppSelector';
 
 interface SidebarProps {
@@ -120,10 +119,7 @@ export const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
         </nav>
 
         {/* User Profile Section - Fixed */}
-        <div className="flex-shrink-0 space-y-2 border-t border-white/5 bg-gradient-to-t from-white/5 to-transparent px-4 pt-3 pb-4">
-          
-          <ThemeToggle />
-        </div>
+        <div className="flex-shrink-0 space-y-2 border-t border-white/5 bg-gradient-to-t from-white/5 to-transparent px-4 pt-3 pb-4"></div>
       </aside>
     </>
   );

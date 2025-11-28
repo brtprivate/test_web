@@ -1,4 +1,3 @@
-import { ColorManager } from "@/features/management/components/ColorManager";
 import { SystemSettingsPanel } from "@/features/management/components/SystemSettingsPanel";
 import { ManualCronTrigger } from "@/features/management/components/ManualCronTrigger";
 import { Card } from "@/components/ui/Card";
@@ -6,7 +5,6 @@ import { Card } from "@/components/ui/Card";
 export default function ManagementPage() {
   return (
     <div className="space-y-6">
-      <ColorManager />
       <SystemSettingsPanel />
       <ManualCronTrigger />
       <Card title="Automation policies" subtitle="Define SLAs and fallback actions.">

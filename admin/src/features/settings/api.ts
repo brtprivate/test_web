@@ -12,7 +12,7 @@ export const settingsApi = baseApi.injectEndpoints({
       providesTags: ['Settings'],
       transformResponse: (response: SettingsResponse) => response.data.settings,
     }),
-    updateSetting: build.mutation<Setting, { key: string; value: string | number | boolean }>({
+    updateSetting: build.mutation<Setting, { key: string; value: Setting['value'] }>({
       query: ({ key, value }) => ({
         url: API_CONFIG.ENDPOINTS.SETTINGS.BY_KEY(key),
         method: 'PATCH',

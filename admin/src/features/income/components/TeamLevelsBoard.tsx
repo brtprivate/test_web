@@ -128,6 +128,7 @@ export const TeamLevelsBoard = () => {
       title="Team Levels Management"
       subtitle="Track and manage all team income by levels (Level 1-9)."
       showLevelFilter={true}
+      compactFilters
       statsCard={(totals, totalRecords, formatCurrency) => (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent p-4 transition-all duration-300 hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/10">

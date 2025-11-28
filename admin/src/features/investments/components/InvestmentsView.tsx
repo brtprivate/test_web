@@ -156,10 +156,10 @@ export const InvestmentsView = () => {
           </Button>
         }
       >
-        <div className="grid gap-4 lg:grid-cols-[2fr,1fr]">
+        <div className="grid gap-4 lg:grid-cols-[1.7fr,1fr]">
           <div className="space-y-3">
-            <label className="text-xs font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]">
-              SEARCH & FILTER
+            <label className="mb-1 text-[0.7rem] font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]">
+              Search & filter
             </label>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-[--color-mutedForeground]" />
@@ -167,19 +167,21 @@ export const InvestmentsView = () => {
                 placeholder="Search by user name, email, plan name..."
                 value={search}
                 onChange={(event) => setSearch(event.currentTarget.value)}
-                className="pl-10"
+                className="h-11 rounded-2xl border border-white/10 bg-transparent pl-10"
               />
-              {debouncedSearch && (
+              {search && (
                 <button
                   type="button"
-                  className="absolute right-3 top-3 text-xs text-[--color-mutedForeground]"
+                  className="absolute right-3 top-3.5 rounded-full p-1 text-[--color-mutedForeground] transition-colors hover:bg-white/10 hover:text-[--color-foreground]"
                   onClick={() => setSearch('')}
+                  aria-label="Clear search"
                 >
-                  clear
+                  ✕
                 </button>
               )}
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
+
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
               <SelectField
                 label="Status"
                 value={statusFilter}
@@ -201,8 +203,6 @@ export const InvestmentsView = () => {
                   { label: 'Hide bonus', value: 'no-bonus' },
                 ]}
               />
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
               <SelectField
                 label="Page size"
                 value={String(pageSize)}
@@ -212,77 +212,37 @@ export const InvestmentsView = () => {
                   value: String(size),
                 }))}
               />
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]">
-                  Min Amount
-                </label>
-                <Input
-                  type="number"
-                  placeholder="0"
-                  value={minAmount}
-                  onChange={(e) => setMinAmount(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]">
-                  Max Amount
-                </label>
-                <Input
-                  type="number"
-                  placeholder="No limit"
-                  value={maxAmount}
-                  onChange={(e) => setMaxAmount(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
+              <AmountField
+                label="Min amount"
+                value={minAmount}
+                placeholder="0"
+                onChange={(value) => setMinAmount(value)}
+              />
+              <AmountField
+                label="Max amount"
+                value={maxAmount}
+                placeholder="No limit"
+                onChange={(value) => setMaxAmount(value)}
+              />
             </div>
           </div>
-          <div className="space-y-4 rounded-2xl border border-white/10 p-4">
-            <header className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-[--color-mutedForeground]">
-              <TrendingUp className="h-4 w-4" />
-              Portfolio snapshot
-            </header>
-            <div>
-              <p className="text-sm text-[--color-mutedForeground]">Total capital</p>
-              <p className="text-3xl font-semibold text-[--color-foreground]">
-                {formatCurrency(totals.totalAmount)}
-              </p>
+
+          <div className="space-y-3 rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-4">
+            <div className="flex items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]">
+              <TrendingUp className="h-4 w-4 text-[--color-primary]" />
+              Snapshot
+              <span className="rounded-full border border-white/10 px-2 py-0.5 text-[0.55rem] tracking-[0.3em] text-[--color-mutedForeground]">
+                Live
+              </span>
             </div>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[--color-mutedForeground]">Total earnings</p>
-                  <p className="font-semibold">{formatCurrency(totals.totalEarnings)}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[--color-mutedForeground]">Active</p>
-                  <p className="font-semibold">
-                    {totals.active} / {totalRecords}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between border-t border-white/5 pt-3">
-                <div>
-                  <p className="text-[--color-mutedForeground]">Earning wallet</p>
-                  <p className="font-semibold text-[--color-primary]">
-                    {formatCurrency(totals.totalEarningWallet || 0)}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[--color-mutedForeground]">Total earned</p>
-                  <p className="font-semibold text-[--color-accent]">
-                    {formatCurrency(totals.totalEarned || 0)}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              <StatPill label="Active" value={totals.active} tone="success" />
-              <StatPill label="Completed" value={totals.completed} tone="info" />
-              <StatPill label="Cancelled" value={totals.cancelled} tone="warning" />
+            <div className="flex flex-wrap gap-2 text-xs">
+              <SnapshotChip label="Capital" value={formatCurrency(totals.totalAmount)} />
+              <SnapshotChip label="Earnings" value={formatCurrency(totals.totalEarnings)} />
+              <SnapshotChip label="Active" value={`${totals.active} / ${totalRecords || 0}`} />
+              <SnapshotChip label="Wallet" value={formatCurrency(totals.totalEarningWallet || 0)} />
+              <SnapshotChip label="Earned" value={formatCurrency(totals.totalEarned || 0)} />
+              <SnapshotChip label="Completed" value={totals.completed.toString()} />
+              <SnapshotChip label="Cancelled" value={totals.cancelled.toString()} />
             </div>
           </div>
         </div>
@@ -513,21 +473,56 @@ const SelectField = ({
   onChange: (value: string) => void;
   options: { label: string; value: string }[];
 }) => (
-  <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]">
-    {label}
-    <div className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2">
+  <label className="flex flex-col gap-1.5">
+    <span className="text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-[--color-mutedForeground]">
+      {label}
+    </span>
+    <div className="relative rounded-xl border border-white/10 bg-white/5 transition-all hover:border-white/20 focus-within:border-[--color-primary] focus-within:ring-2 focus-within:ring-[--color-primary]/20">
       <select
-        className="w-full bg-transparent text-sm font-semibold text-[--color-foreground] outline-none"
+        className="w-full appearance-none bg-transparent px-3 py-2 text-sm font-medium text-[--color-foreground] outline-none"
         value={value}
         onChange={(event) => onChange(event.currentTarget.value)}
       >
         {options.map((option) => (
-          <option key={option.value} value={option.value} className="text-black">
+          <option
+            key={option.value}
+            value={option.value}
+            className="bg-[--color-card] text-[--color-foreground]"
+          >
             {option.label}
           </option>
         ))}
       </select>
+      <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[--color-mutedForeground]">
+        ▼
+      </div>
     </div>
+  </label>
+);
+
+const AmountField = ({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) => (
+  <label className="flex flex-col gap-1.5">
+    <span className="text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-[--color-mutedForeground]">
+      {label}
+    </span>
+    <Input
+      type="number"
+      value={value}
+      placeholder={placeholder}
+      onChange={(event) => onChange(event.currentTarget.value)}
+      className="h-11 rounded-xl border border-white/10 bg-transparent text-sm"
+      min="0"
+    />
   </label>
 );
 
@@ -571,12 +566,19 @@ const StatPill = ({
         ? 'border-amber-500/40 bg-amber-500/10 text-amber-100'
         : 'border-blue-500/40 bg-blue-500/10 text-blue-200';
   return (
-    <div className={`rounded-xl border px-2 py-1.5 text-center ${toneClass}`}>
-      <p className="text-[10px] uppercase tracking-[0.2em]">{label}</p>
+    <div className={`rounded-xl border px-3 py-2 text-center ${toneClass}`}>
+      <p className="text-[0.55rem] uppercase tracking-[0.25em]">{label}</p>
       <p className="text-lg font-semibold">{value}</p>
     </div>
   );
 };
+
+const SnapshotChip = ({ label, value }: { label: string; value: string }) => (
+  <div className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[0.6rem] uppercase tracking-[0.25em] text-[--color-mutedForeground]">
+    <span>{label}:</span>
+    <span className="text-[--color-foreground]">{value}</span>
+  </div>
+);
 
 const useDebouncedValue = <T,>(value: T, delay: number): T => {
   const [debounced, setDebounced] = useState(value);

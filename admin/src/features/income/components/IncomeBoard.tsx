@@ -327,7 +327,7 @@ export const IncomeBoard = () => {
         title="Income management"
         subtitle="Search, filter, and view all income transactions including level ROI."
       >
-        <div className="grid gap-6 lg:grid-cols-[1.5fr,1fr]">
+        <div className="space-y-4">
           {/* Filters Section */}
           <div className="space-y-4">
             <div>
@@ -476,35 +476,6 @@ export const IncomeBoard = () => {
                 </button>
               </div>
             )}
-          </div>
-
-          {/* Summary Panel */}
-          <div className="space-y-4 rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-5">
-            <header className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-[--color-mutedForeground]">
-              <TrendingUp className="h-4 w-4 text-[--color-primary]" />
-              Summary
-            </header>
-            <div className="space-y-4">
-              <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                <p className="mb-1 text-xs text-[--color-mutedForeground]">Total records</p>
-                <p className="text-2xl font-bold text-[--color-foreground]">{totalRecords}</p>
-              </div>
-              <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                <p className="mb-1 text-xs text-[--color-mutedForeground]">Total amount</p>
-                <p className="text-lg font-semibold text-emerald-400">
-                  {formatCurrency(totals.totalAmount)}
-                </p>
-              </div>
-              <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                <p className="mb-1 text-xs text-[--color-mutedForeground]">Current view</p>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[--color-foreground]">
-                  Page {currentPage} of {totalPages}
-                </p>
-                <p className="mt-1 text-xs text-[--color-mutedForeground]">
-                  Showing {pageRangeStart}-{pageRangeEnd} of {totalRecords}
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </Card>
