@@ -91,7 +91,7 @@ export default function IntroductionPage() {
             Why Choose AiCrypto?
           </h2>
 
-          <div className="w-full rounded-lg overflow-hidden shadow-sm">
+          {/* <div className="w-full rounded-lg overflow-hidden shadow-sm">
             <Image
               src="/team.png"
               alt="AiCrypto Team"
@@ -99,7 +99,7 @@ export default function IntroductionPage() {
               height={400}
               className="w-full h-auto object-cover"
             />
-          </div>
+          </div> */}
 
           <div className="space-y-2">
             <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">

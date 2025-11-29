@@ -12,7 +12,7 @@ class TelegramService {
   private readonly defaultWebAppText = 'OPEN';
 
   private getAppBaseUrl(): string {
-    return env.APP_URL?.trim() || 'https://upgrace.in';
+    return env.APP_URL?.trim() ;
   }
 
   private getChatId(msg: Message): number {
