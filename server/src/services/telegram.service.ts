@@ -197,7 +197,7 @@ class TelegramService {
       telegramFirstName: firstName,
       telegramLastName: lastName,
       name: fallbackName,
-      referralCode: referralCode,
+      referralCode: referralCode && referralCode.trim() ? referralCode.trim() : undefined,
     };
 
     console.log('✅ [TELEGRAM][PAYLOAD] Signup payload created', {
@@ -288,6 +288,8 @@ class TelegramService {
         name: signupPayload.name,
         referralCode: referralCode || 'none',
         hasReferralCode: !!referralCode,
+        signupPayloadReferralCode: signupPayload.referralCode || 'none',
+        fullSignupPayload: JSON.stringify(signupPayload),
       });
       
       const newUser = await authService.signup(signupPayload);
@@ -532,25 +534,89 @@ class TelegramService {
       console.log('🚀 [TELEGRAM][START] Processing /start command');
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       
-      // Extract referral code from /start command (e.g., /start AI75F8B884)
+      // Extract referral code from /start command (e.g., /start AI75F8B884 or /start=AI75F8B884)
       const messageText = msg.text || '';
       console.log('📝 [TELEGRAM][START] Step 1: Extracting referral code from message', {
         messageText,
         chatId,
+        fullMessage: JSON.stringify(msg),
       });
       
-      const parts = messageText.split(' ');
-      const referralCode = parts.length > 1 ? parts[1].trim() : undefined;
+      let referralCode: string | undefined = undefined;
+      
+      // Remove the /start command part to get the parameter
+      // Handle formats: /start CODE, /start=CODE, /start?code=CODE
+      const startCommandMatch = messageText.match(/^\/start\s*/i);
+      if (startCommandMatch) {
+        // Get everything after /start
+        const afterStart = messageText.substring(startCommandMatch[0].length).trim();
+        
+        console.log('🔍 [TELEGRAM][START] Content after /start command:', {
+          afterStart,
+          length: afterStart.length,
+          chatId,
+        });
+        
+        if (afterStart) {
+          // Handle equals format: /start=CODE
+          if (afterStart.startsWith('=')) {
+            const extracted = afterStart.substring(1).trim();
+            // Take first word/token (everything until space or end)
+            referralCode = extracted.split(/\s+/)[0].trim();
+          }
+          // Handle URL query format: /start?code=CODE or /start?ref=CODE
+          else if (afterStart.includes('?') || afterStart.includes('=')) {
+            try {
+              const urlParams = new URLSearchParams(afterStart.includes('?') ? afterStart.split('?')[1] : `code=${afterStart}`);
+              referralCode = urlParams.get('code') || urlParams.get('ref') || (afterStart.includes('=') ? afterStart.split('=')[1] : afterStart);
+            } catch {
+              // If URL parsing fails, try simple extraction
+              const equalIndex = afterStart.indexOf('=');
+              if (equalIndex >= 0) {
+                referralCode = afterStart.substring(equalIndex + 1).trim().split(/\s+/)[0];
+              } else {
+                referralCode = afterStart.trim().split(/\s+/)[0];
+              }
+            }
+          }
+          // Handle space-separated format: /start CODE
+          else {
+            referralCode = afterStart.trim().split(/\s+/)[0];
+          }
+          
+          // Clean and validate referral code
+          if (referralCode) {
+            referralCode = referralCode.trim().toUpperCase();
+            // Remove any invalid characters (keep only alphanumeric)
+            referralCode = referralCode.replace(/[^A-Z0-9]/g, '');
+            
+            // Validate minimum length (at least 4 characters)
+            if (referralCode.length < 4) {
+              console.log('⚠️ [TELEGRAM][START] Referral code too short, ignoring', {
+                referralCode,
+                length: referralCode.length,
+                chatId,
+              });
+              referralCode = undefined;
+            }
+          }
+        }
+      }
       
       if (referralCode) {
         console.log('✅ [TELEGRAM][START] Step 1 Complete: Referral code extracted', {
           referralCode,
           codeLength: referralCode.length,
           chatId,
+          rawMessageText: messageText,
         });
       } else {
         console.log('ℹ️  [TELEGRAM][START] Step 1 Complete: No referral code provided', {
           chatId,
+          rawMessageText: messageText,
+          hasEquals: messageText.includes('='),
+          hasSpace: messageText.includes(' '),
+          messageLength: messageText.length,
         });
       }
       
