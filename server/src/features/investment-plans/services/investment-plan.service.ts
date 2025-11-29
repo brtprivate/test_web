@@ -252,7 +252,7 @@ export class InvestmentPlanService {
     };
   }
 
-  // Initialize default plans based on AiEarnBot specification
+  // Initialize default plans based on AiCryptoBot specification
   async initializeDefaultPlans(): Promise<void> {
     const defaultPlans: Array<CreateInvestmentPlanDto & { planType: PlanType; payoutType: PlanPayoutType }> = [
       {

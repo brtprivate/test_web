@@ -25,7 +25,7 @@ export const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
           onClick={onClose}
         />
       )}
-      
+
       <aside
         className={clsx(
           'glass-panel fixed left-0 top-0 z-50 flex h-screen w-72 flex-col transition-transform duration-300 md:sticky md:top-0 md:z-10 md:h-[calc(100vh-1.5rem)] md:translate-x-0',
@@ -39,7 +39,7 @@ export const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
             <div className="relative h-10 w-10 overflow-hidden rounded-xl bg-white/5 ring-1 ring-white/10 shadow-xl shadow-[--color-primary]/20">
               <Image
                 src="/logo.png"
-                alt="AI Earn"
+                alt="AiCrypto"
                 fill
                 sizes="40px"
                 className="object-contain p-1.5"
@@ -48,7 +48,7 @@ export const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
             </div>
             <div className="flex-1">
               <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[--color-primary] drop-shadow-sm">
-                AIEARN
+                AICRYPTO
               </p>
               <p className="mt-0.5 text-xs font-semibold text-[--color-foreground]">Admin Portal</p>
             </div>
@@ -81,7 +81,7 @@ export const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
                 {isActive && (
                   <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-[--color-primary]/10 to-transparent opacity-50 animate-pulse"></div>
                 )}
-                
+
                 <div
                   className={clsx(
                     'relative z-10 flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300',

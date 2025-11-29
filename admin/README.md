@@ -1,6 +1,6 @@
-## AIEarnBot Admin Console
+## AiCryptoBot Admin Console
 
-Feature-driven Next.js 16 dashboard for managing the AIEarnBot server. It ships with:
+Feature-driven Next.js 16 dashboard for managing the AiCryptoBot server. It ships with:
 
 - 🔐 Secure admin login with RTK Query + token persistence
 - 📊 Realtime dashboard cards, charts, and deposit intelligence

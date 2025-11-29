@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie';
 
-const ADMIN_TOKEN_KEY = 'aiearn_admin_token';
+const ADMIN_TOKEN_KEY = 'aicrypto_admin_token';
 
 export const getStoredToken = (): string | null => {
   if (typeof window === 'undefined') return null;

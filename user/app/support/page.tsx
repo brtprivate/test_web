@@ -30,7 +30,7 @@ export default function SupportPage() {
       icon: '📧',
       action: 'Send Email',
       onClick: () => {
-        window.location.href = 'mailto:support@aiearnbot.com';
+        window.location.href = 'mailto:support@aicryptobot.com';
       },
     },
     {

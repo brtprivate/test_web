@@ -23,10 +23,11 @@ export default function WithdrawPage() {
   const [showBuyTPModal, setShowBuyTPModal] = useState(false);
 
   // Buy TP Modal State
-  const { plans } = useInvestmentPlans();
+  const { plans, isLoading: isPlansLoading } = useInvestmentPlans();
   const [createInvestment, { isLoading: isCreatingInvestment }] = useCreateInvestmentMutation();
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [tpAmount, setTpAmount] = useState('');
+  const [amountError, setAmountError] = useState('');
   const {
     data: withdrawalsData,
     isLoading: isWithdrawalsLoading,
@@ -129,6 +130,42 @@ export default function WithdrawPage() {
     }
   };
 
+  const validateAmount = (value: string, plan: any) => {
+    if (!value || value.trim() === '') {
+      setAmountError('');
+      return;
+    }
+
+    const amount = parseFloat(value);
+
+    if (isNaN(amount) || amount <= 0) {
+      setAmountError('Please enter a valid amount');
+      return;
+    }
+
+    if (!plan) {
+      setAmountError('Please select a plan first');
+      return;
+    }
+
+    if (amount < plan.minAmount) {
+      setAmountError(`Minimum amount is $${plan.minAmount}`);
+      return;
+    }
+
+    if (plan.maxAmount && amount > plan.maxAmount) {
+      setAmountError(`Maximum amount is $${plan.maxAmount}`);
+      return;
+    }
+
+    if (amount > availableBalance) {
+      setAmountError('Insufficient balance');
+      return;
+    }
+
+    setAmountError('');
+  };
+
   const handleBuyTP = async () => {
     if (!selectedPlan) {
       addAlert({ type: 'error', message: 'Please select a plan' });
@@ -136,13 +173,13 @@ export default function WithdrawPage() {
     }
 
     const amount = parseFloat(tpAmount);
-    if (!tpAmount || isNaN(amount) || amount < selectedPlan.minInvestment) {
-      addAlert({ type: 'error', message: `Minimum investment is $${selectedPlan.minInvestment}` });
+    if (!tpAmount || isNaN(amount) || amount < selectedPlan.minAmount) {
+      addAlert({ type: 'error', message: `Minimum investment is $${selectedPlan.minAmount}` });
       return;
     }
 
-    if (amount > selectedPlan.maxInvestment) {
-      addAlert({ type: 'error', message: `Maximum investment is $${selectedPlan.maxInvestment}` });
+    if (selectedPlan.maxAmount && amount > selectedPlan.maxAmount) {
+      addAlert({ type: 'error', message: `Maximum investment is $${selectedPlan.maxAmount}` });
       return;
     }
 
@@ -318,75 +355,146 @@ export default function WithdrawPage() {
 
       {/* Buy TP Modal */}
       {showBuyTPModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-800">Buy TP</h2>
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            onClick={() => setShowBuyTPModal(false)}
+          />
+
+          {/* Modal Content */}
+          <div className="relative bg-white w-full sm:w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col shadow-2xl animate-in slide-in-from-bottom-10 fade-in duration-300">
+
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
+              <h2 className="text-xl font-bold text-gray-800">Exchange to TP</h2>
               <button
                 onClick={() => setShowBuyTPModal(false)}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors text-gray-500"
               >
-                ×
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
-            <div className="space-y-4">
+            {/* Scrollable Content */}
+            <div className="p-5 overflow-y-auto overscroll-contain space-y-5 pb-24 sm:pb-5 flex-1 min-h-0">
               {/* Available Balance */}
-              <div className="bg-[#F3E5F5] p-4 rounded-xl">
-                <p className="text-sm text-gray-600">Available Balance</p>
-                <p className="text-2xl font-bold text-gray-800">${availableBalance.toFixed(2)}</p>
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-2xl border border-purple-100">
+                <p className="text-sm text-gray-600 mb-1">Available Balance</p>
+                <p className="text-2xl font-bold text-gray-900">${availableBalance.toFixed(2)}</p>
               </div>
 
               {/* Plan Selection */}
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Select Plan</label>
-                <div className="space-y-2">
-                  {plans?.map((plan: any) => (
-                    <button
-                      key={plan.id}
-                      onClick={() => setSelectedPlan(plan)}
-                      className={`w-full p-4 rounded-xl border-2 transition-colors text-left ${selectedPlan?.id === plan.id
-                        ? 'border-purple-500 bg-purple-50'
-                        : 'border-gray-200 hover:border-purple-300'
-                        }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-bold text-gray-800">{plan.name}</p>
-                          <p className="text-sm text-gray-600">
-                            {plan.dailyReturn}% daily for {plan.duration} days
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-600">Min: ${plan.minInvestment}</p>
-                          <p className="text-sm text-gray-600">Max: ${plan.maxInvestment}</p>
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-gray-700 ml-1">Select Plan</label>
+                <div className="space-y-2.5">
+                  {isPlansLoading ? (
+                    // Loading Skeletons
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="w-full p-4 rounded-xl border border-gray-100 bg-gray-50 animate-pulse">
+                        <div className="flex justify-between">
+                          <div className="space-y-2">
+                            <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                            <div className="h-3 w-32 bg-gray-200 rounded"></div>
+                          </div>
+                          <div className="h-6 w-16 bg-gray-200 rounded"></div>
                         </div>
                       </div>
-                    </button>
-                  ))}
+                    ))
+                  ) : !plans || plans.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                      <p>No investment plans available at the moment.</p>
+                    </div>
+                  ) : (
+                    plans.map((plan: any) => (
+                      <button
+                        key={plan.id}
+                        onClick={() => setSelectedPlan(plan)}
+                        className={`w-full p-4 rounded-xl border-2 transition-all text-left relative overflow-hidden group ${selectedPlan?.id === plan.id
+                          ? 'border-purple-500 bg-purple-50 shadow-md'
+                          : 'border-gray-100 bg-white hover:border-purple-200 hover:bg-gray-50'
+                          }`}
+                      >
+                        <div className="flex items-center justify-between relative z-10">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className={`font-bold ${selectedPlan?.id === plan.id ? 'text-purple-900' : 'text-gray-800'}`}>
+                                {plan.name}
+                              </p>
+                              {selectedPlan?.id === plan.id && (
+                                <span className="bg-purple-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                                  SELECTED
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {plan.dailyROI ?? plan.roiPercentage}% daily • {plan.durationDays} days
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <div className={`text-xs font-medium px-2 py-1 rounded-lg mb-1 inline-block ${selectedPlan?.id === plan.id ? 'bg-purple-200 text-purple-800' : 'bg-gray-100 text-gray-600'
+                              }`}>
+                              ${plan.minAmount} - {typeof plan.maxAmount === 'number' ? `$${plan.maxAmount}` : 'Unlimited'}
+                            </div>
+                          </div>
+                        </div>
+                        {selectedPlan?.id === plan.id && (
+                          <div className="absolute top-0 right-0 p-1">
+                            <div className="bg-purple-500 rounded-bl-lg rounded-tr-lg p-1">
+                              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+                      </button>
+                    ))
+                  )}
                 </div>
               </div>
 
               {/* Amount Input */}
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Amount (USDT)</label>
-                <input
-                  type="number"
-                  value={tpAmount}
-                  onChange={(e) => setTpAmount(e.target.value)}
-                  placeholder={selectedPlan ? `Min ${selectedPlan.minInvestment} USDT` : 'Select a plan first'}
-                  disabled={!selectedPlan}
-                  className="w-full text-center text-xl font-bold text-gray-800 py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-purple-400 transition-colors disabled:bg-gray-100"
-                />
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-gray-700 ml-1">Amount (USDT)</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={tpAmount}
+                    onChange={(e) => setTpAmount(e.target.value)}
+                    placeholder={selectedPlan ? `Min ${selectedPlan.minAmount}` : 'Select a plan first'}
+                    disabled={!selectedPlan}
+                    className="w-full bg-gray-50 text-xl font-bold text-gray-900 py-4 px-4 pl-12 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-purple-500 focus:bg-white transition-all disabled:opacity-60 disabled:cursor-not-allowed placeholder:text-gray-400"
+                  />
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">$</span>
+                </div>
               </div>
+            </div>
 
-              {/* Buy Button */}
+            {/* Sticky Footer */}
+            <div className="p-5 border-t border-gray-100 bg-white shrink-0 pb-10 sm:pb-5 rounded-b-none sm:rounded-b-3xl z-20">
               <button
                 onClick={handleBuyTP}
                 disabled={isCreatingInvestment || !selectedPlan || !tpAmount}
-                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-lg py-4 rounded-xl shadow-md transition-colors"
+                className="w-full bg-[#4FC3F7] hover:bg-[#29B6F6] disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold text-lg py-4 rounded-2xl shadow-lg shadow-blue-100 transition-all active:scale-95 flex items-center justify-center gap-2"
               >
-                {isCreatingInvestment ? 'Processing...' : 'Buy TP'}
+                {isCreatingInvestment ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Confirm Exchange</span>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </>
+                )}
               </button>
             </div>
           </div>

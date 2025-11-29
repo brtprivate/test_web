@@ -15,6 +15,9 @@ import {
   DollarSign,
   Wallet,
   X,
+  Edit,
+  Save,
+  XCircle,
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -51,6 +54,14 @@ export const UsersView = () => {
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZE_OPTIONS)[number]>(25);
   const [page, setPage] = useState(1);
+
+  // Inline editing state
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState<{
+    name: string;
+    email: string;
+    telegramUsername: string;
+  }>({ name: '', email: '', telegramUsername: '' });
 
   const debouncedSearch = useDebouncedValue(search, 350);
 
@@ -150,6 +161,51 @@ export const UsersView = () => {
     setSortDirection(field === 'name' ? 'asc' : 'desc');
   };
 
+  const handleEditClick = (user: AdminUser) => {
+    setEditingUserId(user._id);
+    setEditFormData({
+      name: user.name,
+      email: user.email || '',
+      telegramUsername: user.telegramUsername || '',
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingUserId(null);
+    setEditFormData({ name: '', email: '', telegramUsername: '' });
+  };
+
+  const handleSaveEdit = async (userId: string) => {
+    try {
+      // Validate required fields
+      if (!editFormData.name.trim()) {
+        toast.error('Name is required');
+        return;
+      }
+
+      await updateUser({
+        id: userId,
+        body: {
+          name: editFormData.name.trim(),
+          email: editFormData.email.trim() || undefined,
+          telegramUsername: editFormData.telegramUsername.trim() || undefined,
+        },
+      }).unwrap();
+
+      toast.success('User updated successfully');
+      setEditingUserId(null);
+      refetch();
+    } catch (error: unknown) {
+      type ApiError = { data?: { message?: string }; message?: string };
+      let message = 'Unable to update user';
+      if (typeof error === 'object' && error !== null) {
+        const apiError = error as ApiError;
+        message = apiError.data?.message || apiError.message || message;
+      }
+      toast.error(message);
+    }
+  };
+
   const formatCurrency = (value: number) => {
     // Show full precision without rounding
     return new Intl.NumberFormat('en-US', {
@@ -167,9 +223,8 @@ export const UsersView = () => {
     }
     return (
       <ArrowUpDown
-        className={`h-3.5 w-3.5 text-[--color-primary] ${
-          sortDirection === 'asc' ? 'rotate-180' : ''
-        }`}
+        className={`h-3.5 w-3.5 text-[--color-primary] ${sortDirection === 'asc' ? 'rotate-180' : ''
+          }`}
       />
     );
   };
@@ -503,7 +558,39 @@ export const UsersView = () => {
                       className="transition-colors duration-150 hover:bg-white/5"
                     >
                       <td>
-                        <UserIdentity user={user} />
+                        {editingUserId === user._id ? (
+                          <div className="flex flex-col gap-2">
+                            <input
+                              type="text"
+                              value={editFormData.name}
+                              onChange={(e) =>
+                                setEditFormData({ ...editFormData, name: e.target.value })
+                              }
+                              className="w-full rounded-lg border border-white/20 bg-white/5 px-2 py-1 text-sm text-[--color-foreground] outline-none focus:border-[--color-primary] focus:ring-1 focus:ring-[--color-primary]"
+                              placeholder="Name"
+                            />
+                            <input
+                              type="email"
+                              value={editFormData.email}
+                              onChange={(e) =>
+                                setEditFormData({ ...editFormData, email: e.target.value })
+                              }
+                              className="w-full rounded-lg border border-white/20 bg-white/5 px-2 py-1 text-sm text-[--color-foreground] outline-none focus:border-[--color-primary] focus:ring-1 focus:ring-[--color-primary]"
+                              placeholder="Email"
+                            />
+                            <input
+                              type="text"
+                              value={editFormData.telegramUsername}
+                              onChange={(e) =>
+                                setEditFormData({ ...editFormData, telegramUsername: e.target.value })
+                              }
+                              className="w-full rounded-lg border border-white/20 bg-white/5 px-2 py-1 text-sm text-[--color-foreground] outline-none focus:border-[--color-primary] focus:ring-1 focus:ring-[--color-primary]"
+                              placeholder="Telegram Username"
+                            />
+                          </div>
+                        ) : (
+                          <UserIdentity user={user} />
+                        )}
                       </td>
                       <td>
                         <div className="text-sm leading-5">
@@ -558,25 +645,60 @@ export const UsersView = () => {
                       </td>
                       <td>
                         <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            className="px-2.5 py-1.5 text-xs uppercase sm:px-3 sm:py-2"
-                            icon={<ExternalLink className="h-3.5 w-3.5" />}
-                            loading={isGeneratingToken}
-                            onClick={() => handleLoginAsUser(user)}
-                            title="Login as this user"
-                          >
-                            <span className="hidden sm:inline">Login</span>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            className="px-2.5 py-1.5 text-xs uppercase sm:px-3 sm:py-2"
-                            loading={isUpdating}
-                            onClick={() => handleStatusToggle(user._id, user.isActive)}
-                          >
-                            <span className="hidden sm:inline">{user.isActive ? 'Disable' : 'Activate'}</span>
-                            <span className="sm:hidden">{user.isActive ? 'Off' : 'On'}</span>
-                          </Button>
+                          {editingUserId === user._id ? (
+                            <>
+                              <Button
+                                variant="ghost"
+                                className="px-2.5 py-1.5 text-xs uppercase sm:px-3 sm:py-2"
+                                icon={<Save className="h-3.5 w-3.5" />}
+                                loading={isUpdating}
+                                onClick={() => handleSaveEdit(user._id)}
+                                title="Save changes"
+                              >
+                                <span className="hidden sm:inline">Save</span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                className="px-2.5 py-1.5 text-xs uppercase sm:px-3 sm:py-2"
+                                icon={<XCircle className="h-3.5 w-3.5" />}
+                                onClick={handleCancelEdit}
+                                title="Cancel editing"
+                              >
+                                <span className="hidden sm:inline">Cancel</span>
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                variant="ghost"
+                                className="px-2.5 py-1.5 text-xs uppercase sm:px-3 sm:py-2"
+                                icon={<Edit className="h-3.5 w-3.5" />}
+                                onClick={() => handleEditClick(user)}
+                                title="Edit user details"
+                              >
+                                <span className="hidden sm:inline">Edit</span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                className="px-2.5 py-1.5 text-xs uppercase sm:px-3 sm:py-2"
+                                icon={<ExternalLink className="h-3.5 w-3.5" />}
+                                loading={isGeneratingToken}
+                                onClick={() => handleLoginAsUser(user)}
+                                title="Login as this user"
+                              >
+                                <span className="hidden sm:inline">Login</span>
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                className="px-2.5 py-1.5 text-xs uppercase sm:px-3 sm:py-2"
+                                loading={isUpdating}
+                                onClick={() => handleStatusToggle(user._id, user.isActive)}
+                              >
+                                <span className="hidden sm:inline">{user.isActive ? 'Disable' : 'Activate'}</span>
+                                <span className="sm:hidden">{user.isActive ? 'Off' : 'On'}</span>
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>

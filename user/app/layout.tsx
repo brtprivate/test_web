@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Earn Bot - Investment Platform",
+  title: "AiCrypto Bot - Investment Platform",
   description: "Secure investment platform with automated returns",
 };
 

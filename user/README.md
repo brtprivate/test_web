@@ -1,4 +1,4 @@
-# AI Earn Bot - User Application
+# AiCrypto Bot - User Application
 
 A modern, mobile-first Next.js application with Redux Toolkit and RTK Query for managing investments and wallet operations.
 

@@ -5,11 +5,11 @@ export default function LoginPage() {
     <div className="flex min-h-screen flex-col bg-app text-[--color-foreground] md:flex-row">
       <section className="flex flex-1 flex-col justify-center gap-8 p-10">
         <p className="text-sm uppercase tracking-[0.4em] text-[--color-mutedForeground]">
-          AIEARNBOT COMMAND
+          AICRYPTOBOT COMMAND
         </p>
         <div>
           <h1 className="text-5xl font-semibold leading-tight text-gradient">
-            Operate the future of AI earning intelligence.
+            Operate the future of AI crypto intelligence.
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-[--color-mutedForeground]">
             Monitor capital inflows, investments, team health, wallet liquidity, and automation jobs —

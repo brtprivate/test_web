@@ -57,6 +57,7 @@ export default function Home() {
   const { plans } = useInvestmentPlans();
   const { weeklyPlanStatus, isLoading: isWeeklyStatusLoading } = useWeeklyPlanStatus();
   const [isBuyTPModalOpen, setIsBuyTPModalOpen] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | undefined>(undefined);
   const [settlementTime, setSettlementTime] = useState({ hours: 16, minutes: 48, seconds: 38 });
   const [weeklyCountdown, setWeeklyCountdown] = useState('');
   const [createInvestment, { isLoading: isCreating }] = useCreateInvestmentMutation();
@@ -192,8 +193,8 @@ export default function Home() {
   const weeklyBadgeText = weeklyStatus?.canInvestNow
     ? 'OPEN NOW'
     : weeklyStatus?.isReminderWindow
-    ? 'REMINDER'
-    : 'UPCOMING';
+      ? 'REMINDER'
+      : 'UPCOMING';
   const weeklyCountdownPrefix = weeklyStatus?.canInvestNow ? 'Time remaining:' : 'Opens in:';
   const reminderStartsLabel = weeklyStatus?.reminderStartsAt ? formatDateTime(weeklyStatus.reminderStartsAt) : '';
   const nextWindowStartLabel = weeklyStatus?.nextWindowStart ? formatDateTime(weeklyStatus.nextWindowStart) : '';
@@ -256,12 +257,22 @@ export default function Home() {
     }
   };
 
+  const handleOpenWeeklyBuy = () => {
+    if (weeklyPlan) {
+      setSelectedPlanId(weeklyPlan.id || weeklyPlan._id);
+      setIsBuyTPModalOpen(true);
+    }
+  };
+
+  const handleOpenGeneralBuy = () => {
+    setSelectedPlanId(undefined);
+    setIsBuyTPModalOpen(true);
+  };
+
   const dailyEarn = summary?.todayIncome || summary?.dailyROI || 0;
   const totalBalance = balance?.total ?? 0;
   const investmentWalletBalance = balance?.investmentWallet ?? 0;
   const earningWalletBalance = balance?.earningWallet ?? 0;
-
-
 
   return (
     <MobileLayout showBottomNav={true}>
@@ -287,7 +298,7 @@ export default function Home() {
                 size="md"
                 onClick={() => (window.location.href = '/login')}
               >
-                Go to Login 
+                Go to Login
               </Button>
             </div>
           </Card>
@@ -354,7 +365,7 @@ export default function Home() {
               variant="primary"
               size="sm"
               className="w-full text-xs py-1.5 h-auto mt-0.5"
-              onClick={() => setIsBuyTPModalOpen(true)}
+              onClick={handleOpenWeeklyBuy}
               disabled={!canJoinWeekly}
             >
               Join Weekly Power Trade
@@ -430,7 +441,7 @@ export default function Home() {
         <div className="grid grid-cols-2 gap-4 mt-2">
           {/* Buy TP Button */}
           <button
-            onClick={() => setIsBuyTPModalOpen(true)}
+            onClick={handleOpenGeneralBuy}
             className="bg-[#84CC16] hover:bg-[#65A30D] text-white rounded-2xl p-4 flex items-center justify-center gap-3 shadow-md transition-all active:scale-95"
           >
             <div className="w-8 h-8 relative">
@@ -470,8 +481,6 @@ export default function Home() {
         {/* Investment Plans Table - Show After Buttons */}
         <InvestmentPlansTable />
 
-
-
         {/* Trading Status Section with Tabs */}
         <TradingStatus
           investments={investments}
@@ -483,9 +492,11 @@ export default function Home() {
           isOpen={isBuyTPModalOpen}
           onClose={() => {
             setIsBuyTPModalOpen(false);
+            setSelectedPlanId(undefined);
           }}
           onConfirm={(amount, planId, options) => handleBuyTP(amount, planId, options)}
           isInvesting={isCreating}
+          initialPlanId={selectedPlanId}
         />
       </div>
     </MobileLayout>

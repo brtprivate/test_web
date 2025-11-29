@@ -16,7 +16,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    label: 'AIEarn',
+    label: 'AiCrypto',
     path: '/',
     icon: (
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,7 +49,7 @@ export default function BottomNav() {
 
   const navItems = [
     {
-      label: 'AiEarn',
+      label: 'AiCrypto',
       path: '/',
       icon: (
         <div className="relative w-6 h-6">

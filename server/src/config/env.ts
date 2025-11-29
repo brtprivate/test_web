@@ -64,7 +64,7 @@ export const env = {
   SMTP_PORT: parseInt(process.env.SMTP_PORT || '587', 10),
   SMTP_USER: process.env.SMTP_USER || '',
   SMTP_PASSWORD: process.env.SMTP_PASSWORD || '',
-  EMAIL_FROM: process.env.EMAIL_FROM || 'noreply@aiearnbot.com',
+  EMAIL_FROM: process.env.EMAIL_FROM || 'noreply@aicryptobot.com',
   
   // Redis (Optional)
   REDIS_HOST: process.env.REDIS_HOST || 'localhost',
@@ -78,7 +78,7 @@ export const env = {
   UPLOAD_DIR: process.env.UPLOAD_DIR || './uploads',
   
   // Admin
-  ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@aiearnbot.com',
+  ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@aicryptobot.com',
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'Admin123!',
   
   // Feature Flags

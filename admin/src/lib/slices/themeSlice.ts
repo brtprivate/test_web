@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
-const THEME_STORAGE_KEY = 'aiearn_admin_theme';
+const THEME_STORAGE_KEY = 'aicrypto_admin_theme';
 
 export type ThemeMode = 'light' | 'dark';
 

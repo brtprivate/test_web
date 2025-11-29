@@ -23,7 +23,7 @@ export default function IntroductionPage() {
         {/* Header Section */}
         <div className="space-y-4">
           <h1 className="text-2xl font-bold text-gray-800 leading-tight">
-            AiEarn: Redefining Crypto Trading with AI
+            AiCrypto: Redefining Crypto Trading with AI
           </h1>
           <p className="text-gray-600 text-lg">
             —A Compliance-Driven, Transparent, and Intelligent Crypto Platform
@@ -33,7 +33,7 @@ export default function IntroductionPage() {
         {/* Company Info Section */}
         <div className="text-gray-800 leading-relaxed">
           <p>
-            AiEarn LLC is a legally incorporated entity in Colorado, USA
+            AiCrypto LLC is a legally incorporated entity in Colorado, USA
             ( Registration ID: <span className="text-blue-500">17078227</span> <span className="inline-block align-middle">📄</span> ), operating under Colorado's commercial laws
             and financial regulatory frameworks.
           </p>
@@ -88,13 +88,13 @@ export default function IntroductionPage() {
         {/* Why Choose AiEarn Section */}
         <div className="space-y-4 pb-8">
           <h2 className="text-xl font-bold text-gray-800">
-            Why Choose AiEarn?
+            Why Choose AiCrypto?
           </h2>
 
           <div className="w-full rounded-lg overflow-hidden shadow-sm">
             <Image
               src="/team.png"
-              alt="AiEarn Team"
+              alt="AiCrypto Team"
               width={800}
               height={400}
               className="w-full h-auto object-cover"
@@ -124,7 +124,7 @@ export default function IntroductionPage() {
 
           <div className="space-y-2 pt-2">
             <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <span>💡</span> AiEarn Mini App: Effortless Crypto Earnings
+              <span>💡</span> AiCrypto Mini App: Effortless Crypto Earnings
             </h3>
 
             <h4 className="text-gray-800 font-bold pt-1">
@@ -184,7 +184,7 @@ export default function IntroductionPage() {
                 Community-Driven:
               </p>
               <p className="text-gray-800 leading-relaxed">
-                Join our official Telegram channel (<a href="https://t.me/News_AiEarn" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">@News_AiEarn</a>) for exclusive market
+                Join our official Telegram channel (<a href="https://t.me/News_AiCrypto" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">@News_AiCrypto</a>) for exclusive market
                 insights, strategy whitepapers, and regulatory updates.
               </p>
             </div>

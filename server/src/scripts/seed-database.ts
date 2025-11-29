@@ -50,7 +50,7 @@ async function seedDatabase() {
 
     console.log('🎉 Database seeding completed successfully!');
     console.log('\n📋 Seeded Data Summary:');
-    console.log('   - 1 Admin user (admin@aiearnbot.com / Admin123!)');
+    console.log('   - 1 Admin user (admin@aicryptobot.com / Admin123!)');
     console.log('   - 1 Normal user (telegramChatId: 123456789)');
     console.log('   - Default settings (welcome bonus, referral bonus, ROI)');
     console.log('   - 4 Investment plans (Starter, Basic, Premium, VIP)');
@@ -67,7 +67,7 @@ async function seedDatabase() {
  * Seed Admin User
  */
 async function seedAdmin() {
-  const existingAdmin = await Admin.findOne({ email: 'admin@aiearnbot.com' });
+  const existingAdmin = await Admin.findOne({ email: 'admin@aicryptobot.com' });
   
   if (existingAdmin) {
     console.log('   ⚠️  Admin already exists, skipping...');
@@ -76,7 +76,7 @@ async function seedAdmin() {
 
   const admin = new Admin({
     username: 'admin',
-    email: 'admin@aiearnbot.com',
+    email: 'admin@aicryptobot.com',
     password: 'Admin123!', // Will be hashed automatically
     role: 'admin',
     isActive: true,
@@ -84,7 +84,7 @@ async function seedAdmin() {
 
   await admin.save();
   console.log('   ✅ Admin created:');
-  console.log('      Email: admin@aiearnbot.com');
+  console.log('      Email: admin@aicryptobot.com');
   console.log('      Password: Admin123!');
 }
 

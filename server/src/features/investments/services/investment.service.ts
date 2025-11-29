@@ -31,7 +31,7 @@ export class InvestmentService {
     }
 
     const existingInvestment =
-      !data.isWelcomeBonusInvestment
+      !data.isWelcomeBonusInvestment && plan.planType !== 'weekly'
         ? await Investment.findOne({
             user: userId,
             plan: data.planId,

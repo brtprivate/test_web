@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AIEarnBot • Admin Console",
+  title: "AiCryptoBot • Admin Console",
   description:
     "Full-featured admin console for monitoring users, investments, income streams, and system health.",
 };

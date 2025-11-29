@@ -28,6 +28,7 @@ interface BuyTPModalProps {
   onClose: () => void;
   onConfirm: (amount: number, planId: string, options?: { source?: 'wallet' | 'deposit' }) => void;
   isInvesting?: boolean;
+  initialPlanId?: string;
 }
 
 export default function BuyTPModal({
@@ -35,6 +36,7 @@ export default function BuyTPModal({
   onClose,
   onConfirm,
   isInvesting = false,
+  initialPlanId,
 }: BuyTPModalProps) {
   const [amount, setAmount] = useState('');
   const [errors, setErrors] = useState<{ amount?: string }>({});
@@ -52,9 +54,26 @@ export default function BuyTPModal({
   const getPlanKey = (plan: InvestmentPlan) => String(plan.id || plan._id || plan.name);
   const selectedPlanId = selectedPlan ? getPlanKey(selectedPlan) : '';
 
+  // Effect to set initial plan when modal opens or initialPlanId changes
+  useEffect(() => {
+    if (isOpen && initialPlanId && plans.length > 0) {
+      const plan = plans.find(p => getPlanKey(p) === initialPlanId);
+      if (plan) {
+        setSelectedPlan(plan);
+      }
+    } else if (isOpen && !initialPlanId) {
+      setSelectedPlan(null);
+    }
+  }, [isOpen, initialPlanId, plans]);
+
   const availablePlans = useMemo(
-    () => plans.filter((plan) => plan.planType !== 'weekly' || plan.isVisibleNow),
-    [plans]
+    () => plans.filter((plan) =>
+      // If initialPlanId is provided, include it regardless of type
+      (initialPlanId && getPlanKey(plan) === initialPlanId) ||
+      // Otherwise exclude weekly unless visible
+      (plan.planType !== 'weekly' || plan.isVisibleNow)
+    ),
+    [plans, initialPlanId]
   );
 
   const botPlans = useMemo(
@@ -62,12 +81,13 @@ export default function BuyTPModal({
     [availablePlans]
   );
 
-  const minAmount =
-    botPlans.length > 0
+  const minAmount = selectedPlan
+    ? selectedPlan.minAmount
+    : botPlans.length > 0
       ? Math.min(...botPlans.map((p) => p.minAmount))
       : availablePlans.length > 0
-      ? Math.min(...availablePlans.map((p) => p.minAmount))
-      : 10;
+        ? Math.min(...availablePlans.map((p) => p.minAmount))
+        : 10;
 
   const planMaxAmounts = botPlans
     .map((p) => (typeof p.maxAmount === 'number' ? p.maxAmount : undefined))
@@ -79,29 +99,46 @@ export default function BuyTPModal({
   const fallbackMax =
     fallbackMaxCandidates.length > 0 ? Math.max(...fallbackMaxCandidates) : 10000;
 
-  const maxAmount =
-    planMaxAmounts.length > 0 ? Math.max(...planMaxAmounts) : fallbackMax;
+  const maxAmount = selectedPlan && typeof selectedPlan.maxAmount === 'number'
+    ? selectedPlan.maxAmount
+    : planMaxAmounts.length > 0 ? Math.max(...planMaxAmounts) : fallbackMax;
 
   const amountNum = parseFloat(amount);
   const hasAmount = !Number.isNaN(amountNum);
 
   const matchingPlans = useMemo(() => {
     if (!hasAmount) return [];
+
+    // If we have a selected plan (e.g. from initialPlanId), check if amount fits it
+    if (selectedPlan) {
+      const fits = amountNum >= selectedPlan.minAmount &&
+        (typeof selectedPlan.maxAmount !== 'number' || amountNum <= selectedPlan.maxAmount);
+      if (fits) return [selectedPlan];
+    }
+
     return availablePlans.filter(
       (plan) =>
         amountNum >= plan.minAmount &&
         (typeof plan.maxAmount !== 'number' || amountNum <= plan.maxAmount)
     );
-  }, [availablePlans, amountNum, hasAmount]);
+  }, [availablePlans, amountNum, hasAmount, selectedPlan]);
 
   useEffect(() => {
     if (!hasAmount) {
-      setSelectedPlan(null);
+      // Don't reset if we have an initial plan
+      if (!initialPlanId) {
+        setSelectedPlan(null);
+      }
       return;
     }
 
     if (matchingPlans.length > 0) {
       setSelectedPlan((prev) => {
+        // If we have an initial plan and it matches, keep it
+        if (initialPlanId && prev && getPlanKey(prev) === initialPlanId) {
+          return prev;
+        }
+
         if (!prev) return matchingPlans[0];
         const prevId = prev.id || prev._id;
         const stillValid = matchingPlans.some(
@@ -109,10 +146,11 @@ export default function BuyTPModal({
         );
         return stillValid ? prev : matchingPlans[0];
       });
-    } else {
+    } else if (!initialPlanId) {
+      // Only reset if not enforced by initialPlanId
       setSelectedPlan(null);
     }
-  }, [hasAmount, matchingPlans]);
+  }, [hasAmount, matchingPlans, initialPlanId]);
 
   // Generate or get wallet address when payment section should be shown
   useEffect(() => {
@@ -420,7 +458,7 @@ export default function BuyTPModal({
             {/* Network Info */}
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2">
               <p className="text-xs text-yellow-800">
-                <span className="font-semibold">⚠️ Important:</span> Use BEP20 (Binance Smart Chain) network only. 
+                <span className="font-semibold">⚠️ Important:</span> Use BEP20 (Binance Smart Chain) network only.
                 Sending via other networks may result in loss of funds.
               </p>
             </div>
@@ -485,8 +523,8 @@ export default function BuyTPModal({
               {isGeneratingWallet
                 ? 'Generating Wallet...'
                 : canInvestFromWallet
-                ? 'Add Funds Instead'
-                : 'Continue to Payment'}
+                  ? 'Add Funds Instead'
+                  : 'Continue to Payment'}
             </Button>
           )}
 

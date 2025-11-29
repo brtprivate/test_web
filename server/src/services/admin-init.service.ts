@@ -12,7 +12,7 @@ export class AdminInitService {
       // Create default admin
       const defaultAdmin = {
         username: 'admin',
-        email: 'admin@aiearnbot.com',
+        email: 'admin@aicryptobot.com',
         password: 'Admin123!', // Should be changed on first login
       };
 
@@ -20,7 +20,7 @@ export class AdminInitService {
         await adminService.signup(defaultAdmin);
         console.log('✅ Admin created');
         console.log('⚠️  Default credentials:');
-        console.log('   Email: admin@aiearnbot.com');
+        console.log('   Email: admin@aicryptobot.com');
         console.log('   Password: Admin123!');
         console.log('   Please change password after first login!');
       } catch (error: any) {

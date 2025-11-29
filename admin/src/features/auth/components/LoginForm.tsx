@@ -20,7 +20,7 @@ export const LoginForm = () => {
         <div className="space-y-1">
           <Input
             label="Admin Email"
-            placeholder="admin@aiearnbot.io"
+            placeholder="admin@aicryptobot.io"
             type="email"
             autoComplete="email"
             {...register('email')}

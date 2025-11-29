@@ -95,7 +95,7 @@ function RegisterPageContent() {
             Create Account
           </h1>
           <p className="text-sm sm:text-base text-gray-600">
-            Join AiEarnBot with your Telegram Chat ID and referral code.
+            Join AiCryptoBot with your Telegram Chat ID and referral code.
           </p>
         </div>
 
@@ -159,7 +159,7 @@ function RegisterPageContent() {
             <div className="flex flex-col gap-1">
               <span className="font-semibold text-gray-900">Need help?</span>
               <span>
-                Telegram Chat ID is required to connect your AiEarnBot account with our bot.
+                Telegram Chat ID is required to connect your AiCryptoBot account with our bot.
               </span>
             </div>
             <Button

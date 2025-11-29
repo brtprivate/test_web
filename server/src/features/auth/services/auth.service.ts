@@ -34,7 +34,7 @@ export class AuthService {
         // If referral code not found, try to find a default/system user
         // Look for a user with referral code "SYSTEM" or similar
         const systemUser = await User.findOne({ 
-          referralCode: { $in: ['SYSTEM', 'DEFAULT', 'AIEARN'] },
+          referralCode: { $in: ['SYSTEM', 'DEFAULT', 'AICRYPTO'] },
           isActive: true 
         });
         
@@ -55,7 +55,7 @@ export class AuthService {
     } else {
       // If no referral code provided, use default/system user
       const systemUser = await User.findOne({ 
-        referralCode: { $in: ['SYSTEM', 'DEFAULT', 'AIEARN'] },
+        referralCode: { $in: ['SYSTEM', 'DEFAULT', 'AICRYPTO'] },
         isActive: true 
       });
       
