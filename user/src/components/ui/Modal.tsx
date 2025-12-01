@@ -89,7 +89,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
         )}
 
         {/* Content */}
-        <div className="p-4 sm:p-6">{children}</div>
+        <div className="p-4 sm:p-6 pb-24 sm:pb-6">{children}</div>
       </div>
     </div>
   );
