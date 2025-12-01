@@ -332,13 +332,23 @@ export default function BuyTPModal({
           </p>
         </div>
 
-        {/* Investment Wallet Balance */}
+        {/* Investment Wallet Balance + History link */}
         {user && (
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 flex items-center justify-between text-sm text-purple-900">
-            <span>Investment Wallet</span>
-            <span className="font-semibold">
-              {isWalletLoading ? 'Loading...' : `$${formatDisplayAmount(investmentWalletBalanceRaw)}`}
-            </span>
+          <div className="space-y-1">
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 flex items-center justify-between text-sm text-purple-900">
+              <span>Investment Wallet</span>
+              <span className="font-semibold">
+                {isWalletLoading ? 'Loading...' : `$${formatDisplayAmount(investmentWalletBalanceRaw)}`}
+              </span>
+            </div>
+            <p className="text-[11px] text-right text-gray-500">
+              <Link
+                href="/deposits"
+                className="text-blue-600 hover:text-blue-700 underline font-medium"
+              >
+                View deposit history
+              </Link>
+            </p>
           </div>
         )}
 
@@ -565,14 +575,6 @@ export default function BuyTPModal({
           >
             Cancel
           </Button>
-          <div className="pt-1">
-            <p className="text-[11px] text-center text-gray-500">
-              Want to see your previous top-ups?{' '}
-              <Link href="/deposits" className="text-blue-600 hover:text-blue-700 underline font-medium">
-                View deposit history
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
     </Modal>
