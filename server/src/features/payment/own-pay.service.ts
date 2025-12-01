@@ -801,9 +801,10 @@ export class WalletMonitorService {
   async transferBNBFromGasWallet(toAddress: string, amount: number): Promise<string | false> {
     try {
       console.log(`Sending ${amount} BNB from gas wallet to ${toAddress}`);
+      console.log(`Gas wallet configured as: ${this.gasWallet}`);
 
-      // Convert amount to Wei for precise calculations
-      const amountInWei = amount * 10 ** 18;
+      // Convert requested amount to Wei for precise calculations
+      const requestedAmountInWei = amount * 10 ** 18;
 
       // Gas limit in Wei (21000 gas for simple transfer)
       const gasLimit = this.gasTransferGasLimit;
@@ -814,20 +815,52 @@ export class WalletMonitorService {
       // Calculate total gas cost in Wei
       const gasCostInWei = gasLimit * gasPriceInWei;
 
-      // Total amount needed including gas
-      const totalAmountNeeded = amountInWei + gasCostInWei;
-
-      // Check if gas wallet has enough balance
+      // Check current gas wallet balance
       const gasWalletBalance = await this.getBNBBalance(this.gasWallet);
+      console.log(
+        `Current gas wallet BNB balance for ${this.gasWallet}: ${gasWalletBalance.toFixed(9)} BNB`
+      );
       const gasWalletBalanceWei = gasWalletBalance * 10 ** 18;
 
-      if (gasWalletBalanceWei < totalAmountNeeded) {
-        console.log(`Insufficient balance in gas wallet. Required: ${totalAmountNeeded / 10 ** 18} BNB, Available: ${gasWalletBalance} BNB`);
+      // Maximum we can actually send while still paying gas
+      const maxSendableWei = gasWalletBalanceWei - gasCostInWei;
+
+      if (maxSendableWei <= 0) {
+        console.log(
+          `Insufficient balance in gas wallet. Available: ${gasWalletBalance} BNB, gas fee alone requires ${gasCostInWei /
+            10 ** 18} BNB`
+        );
         return false;
       }
 
+      // Final amount to send in Wei: cannot exceed requested or maxSendable
+      const amountInWei = Math.min(requestedAmountInWei, maxSendableWei);
+
+      if (amountInWei <= 0) {
+        console.log(
+          `Computed transferable amount is zero. Requested=${requestedAmountInWei / 10 ** 18} BNB, maxSendable=${maxSendableWei /
+            10 ** 18} BNB`
+        );
+        return false;
+      }
+
+      const totalAmountNeeded = amountInWei + gasCostInWei;
+      console.log(
+        `Gas wallet balance ${gasWalletBalance.toFixed(
+          9
+        )} BNB, gas fee ${(gasCostInWei / 10 ** 18).toFixed(
+          9
+        )} BNB, sending ${(amountInWei / 10 ** 18).toFixed(9)} BNB (total cost ${(totalAmountNeeded /
+          10 ** 18).toFixed(9)} BNB)`
+      );
+
       // Remove '0x' if present from private key
       const privateKey = this.gasPrivateKey.replace('0x', '');
+      const pkPreview =
+        this.gasPrivateKey && this.gasPrivateKey.length > 10
+          ? `${this.gasPrivateKey.slice(0, 6)}...${this.gasPrivateKey.slice(-4)} (len=${this.gasPrivateKey.length})`
+          : `(len=${this.gasPrivateKey ? this.gasPrivateKey.length : 0})`;
+      console.log(`Gas wallet private key preview: ${pkPreview}`);
 
       // Retry logic for nonce management
       const maxRetries = 3;

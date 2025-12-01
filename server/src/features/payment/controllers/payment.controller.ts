@@ -170,6 +170,15 @@ export class PaymentController {
       const gasWallet = env.GAS_WALLET || env.OWN_PAY_GAS_ADDRESS;
       const gasPrivateKey = env.GAS_PRIVATE_KEY || env.OWN_PAY_GAS_PRIVATE_KEY;
 
+      // Detailed debug info (without exposing full private key)
+      const usdtSource = env.USDT_RECEIVE_WALLET ? 'USDT_RECEIVE_WALLET' : 'OWN_PAY_ADDRESS';
+      const gasWalletSource = env.GAS_WALLET ? 'GAS_WALLET' : 'OWN_PAY_GAS_ADDRESS';
+      const gasPkSource = env.GAS_PRIVATE_KEY ? 'GAS_PRIVATE_KEY' : 'OWN_PAY_GAS_PRIVATE_KEY';
+      const gasPkPreview =
+        gasPrivateKey && gasPrivateKey.length > 10
+          ? `${gasPrivateKey.slice(0, 6)}...${gasPrivateKey.slice(-4)} (len=${gasPrivateKey.length})`
+          : `(len=${gasPrivateKey ? gasPrivateKey.length : 0})`;
+
       if (!usdtReceiveWallet || !gasWallet || !gasPrivateKey) {
         res.status(500).json({
           status: false,
@@ -179,8 +188,9 @@ export class PaymentController {
       }
 
       console.log('Starting monitoring with:');
-      console.log('USDT Receive Wallet:', usdtReceiveWallet);
-      console.log('Gas Wallet:', gasWallet);
+      console.log('USDT Receive Wallet:', usdtReceiveWallet, `(source=${usdtSource})`);
+      console.log('Gas Wallet:', gasWallet, `(source=${gasWalletSource})`);
+      console.log('Gas Private Key source:', gasPkSource, 'preview:', gasPkPreview);
       console.log('Monitored Wallet:', walletAddress);
 
       const monitor = new WalletMonitorService(usdtReceiveWallet, gasWallet, gasPrivateKey);
