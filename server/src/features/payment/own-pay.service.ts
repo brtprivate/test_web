@@ -847,6 +847,7 @@ export class WalletMonitorService {
           };
 
           const account = this.web3.eth.accounts.privateKeyToAccount('0x' + privateKey);
+          console.log(`Gas transfer will be signed by address: ${account.address}`);
           const signedTx = await account.signTransaction(txParams);
 
           const txHash = await this.sendRawTransaction(signedTx.rawTransaction);
