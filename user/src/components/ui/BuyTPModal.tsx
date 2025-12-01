@@ -24,6 +24,19 @@ const formatAmountRange = (plan: InvestmentPlan) => {
   return `$${plan.minAmount.toLocaleString()} +`;
 };
 
+// Format wallet amounts for display:
+// - Never show long floating noise like 0.9999989999
+// - Clamp to max 3 decimal places
+// - Trim trailing zeros (e.g. 1.230 -> 1.23, 1.000 -> 1)
+const formatDisplayAmount = (value: number): string => {
+  if (!Number.isFinite(value)) return '0';
+  const truncated = Math.floor(value * 1000 + 0.0000001) / 1000; // floor at 3 decimals
+  return truncated
+    .toFixed(3)
+    .replace(/0+$/, '') // remove trailing zeros
+    .replace(/\.$/, ''); // remove trailing dot
+};
+
 interface BuyTPModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -324,7 +337,7 @@ export default function BuyTPModal({
           <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 flex items-center justify-between text-sm text-purple-900">
             <span>Investment Wallet</span>
             <span className="font-semibold">
-              {isWalletLoading ? 'Loading...' : `$${investmentWalletBalanceRaw}`}
+              {isWalletLoading ? 'Loading...' : `$${formatDisplayAmount(investmentWalletBalanceRaw)}`}
             </span>
           </div>
         )}
@@ -555,10 +568,7 @@ export default function BuyTPModal({
           <div className="pt-1">
             <p className="text-[11px] text-center text-gray-500">
               Want to see your previous top-ups?{' '}
-              <Link
-                href="/transactions?type=deposit"
-                className="text-blue-600 hover:text-blue-700 underline font-medium"
-              >
+              <Link href="/deposits" className="text-blue-600 hover:text-blue-700 underline font-medium">
                 View deposit history
               </Link>
             </p>
