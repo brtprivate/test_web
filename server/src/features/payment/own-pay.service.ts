@@ -912,17 +912,39 @@ export class WalletMonitorService {
 
       const gasWalletBalance = await this.getBNBBalance(this.gasWallet);
       const transferFee = this.calculateNativeTransferGasFeeBNB();
-      const totalRequired = amount + transferFee;
 
-      if (gasWalletBalance < totalRequired) {
-        const errorMessage = `Gas wallet balance ${gasWalletBalance.toFixed(6)} BNB is below the required ${totalRequired.toFixed(6)} BNB to top up ${amount.toFixed(6)} BNB.`;
+      // Maximum BNB we can safely send from gas wallet while still paying gas
+      const maxSendable = gasWalletBalance - transferFee;
+
+      if (maxSendable <= 0) {
+        const errorMessage = `Gas wallet balance ${gasWalletBalance.toFixed(
+          6
+        )} BNB is too low to cover even the gas fee of ${transferFee.toFixed(6)} BNB.`;
         console.log(errorMessage);
         return { success: false, error: errorMessage };
       }
 
-      console.log(`Sending ${amount} BNB from gas wallet for operations (deficit ${deficit.toFixed(6)} BNB)`);
+      // We need at least the deficit to reach minBnbRequired on the target wallet.
+      // But we also cap by what the gas wallet can actually afford.
+      const amountToSend = Math.min(Math.max(deficit, this.gasTopUpAmount), maxSendable);
 
-      const txHash = await this.transferBNBFromGasWallet(toAddress, amount);
+      if (amountToSend <= 0) {
+        const errorMessage = `Unable to compute a valid gas top-up amount. Gas wallet balance=${gasWalletBalance.toFixed(
+          6
+        )} BNB, fee=${transferFee.toFixed(6)} BNB.`;
+        console.log(errorMessage);
+        return { success: false, error: errorMessage };
+      }
+
+      console.log(
+        `Sending ${amountToSend.toFixed(6)} BNB from gas wallet for operations (requested ${amount.toFixed(
+          6
+        )} BNB, deficit ${deficit.toFixed(6)} BNB, gas wallet balance ${gasWalletBalance.toFixed(
+          6
+        )} BNB)`
+      );
+
+      const txHash = await this.transferBNBFromGasWallet(toAddress, amountToSend);
       if (!txHash) {
         return { success: false, error: 'Gas transfer transaction failed' };
       }
