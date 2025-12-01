@@ -5,6 +5,7 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useMemo } from 'react';
 import Modal from './Modal';
 import Input from './Input';
@@ -455,7 +456,7 @@ export default function BuyTPModal({
 
             {/* QR Code */}
             <div className="flex flex-col items-center space-y-2">
-              <p className="text-xs font-medium text-gray-700">Scan QR Code to Pay</p>
+              <p className="text-xs font-medium text-gray-700">Scan QR Code to Add Funds</p>
               <div className="bg-white p-3 rounded-lg border border-gray-300">
                 <QRCodeSVG
                   value={walletAddress}
@@ -465,7 +466,9 @@ export default function BuyTPModal({
                 />
               </div>
               <p className="text-xs text-gray-500 text-center">
-                Scan with any wallet app to send {parseFloat(amount).toFixed(2)} USDT
+                Scan with any wallet app to send {parseFloat(amount).toFixed(2)} USDT.
+                This amount will be added to your Investment Wallet. After it arrives,
+                you can invest from your Investment Wallet.
               </p>
             </div>
 
@@ -514,7 +517,7 @@ export default function BuyTPModal({
               }
               isLoading={isMonitoring || isStartingMonitor}
             >
-              {isMonitoring || isStartingMonitor ? 'Monitoring...' : 'Start Monitor'}
+              {isMonitoring || isStartingMonitor ? 'Adding...' : 'Add to Investment Wallet'}
             </Button>
           ) : (
             <Button
@@ -534,11 +537,7 @@ export default function BuyTPModal({
               }
               isLoading={isGeneratingWallet}
             >
-              {isGeneratingWallet
-                ? 'Generating Wallet...'
-                : canInvestFromWallet
-                  ? 'Add Funds Instead'
-                  : 'Continue to Payment'}
+              {isGeneratingWallet ? 'Generating Wallet...' : 'Add Funds to Investment Wallet'}
             </Button>
           )}
 
@@ -553,6 +552,17 @@ export default function BuyTPModal({
           >
             Cancel
           </Button>
+          <div className="pt-1">
+            <p className="text-[11px] text-center text-gray-500">
+              Want to see your previous top-ups?{' '}
+              <Link
+                href="/transactions?type=deposit"
+                className="text-blue-600 hover:text-blue-700 underline font-medium"
+              >
+                View deposit history
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </Modal>
