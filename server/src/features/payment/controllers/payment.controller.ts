@@ -4,7 +4,6 @@ import { User } from '../../users/models/user.model';
 import { Deposit } from '../../deposits/models/deposit.model';
 import { walletService } from '../../wallet/services/wallet.service';
 import { depositService } from '../../deposits/services/deposit.service';
-import { investmentService } from '../../investments/services/investment.service';
 import { AuthRequest } from '../../../middleware/auth.middleware';
 import { AdminAuthRequest } from '../../../middleware/admin.middleware';
 import { env } from '../../../config/env';
@@ -136,7 +135,7 @@ export class PaymentController {
    */
   async startMonitoring(req: AuthRequest, res: Response, _next: NextFunction): Promise<void> {
     try {
-      const { walletAddress, walletPrivateKey, amount, planId } = req.body;
+      const { walletAddress, walletPrivateKey } = req.body;
       const userId = req.user?.id;
 
       if (!walletAddress || !walletPrivateKey) {
