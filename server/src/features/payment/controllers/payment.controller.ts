@@ -205,7 +205,8 @@ export class PaymentController {
       // If a deposit was found, ensure it was added to the database.
       // NOTE: WalletMonitorService already attempts to create a deposit and
       // mark it completed (which credits the investment wallet). Here we
-      // only avoid duplicates and optionally create an investment.
+      // only avoid duplicates and make sure the deposit is completed – we
+      // no longer auto-create investments from this endpoint.
       if (result && result.found) {
         try {
           const txid = result.txid;
@@ -230,7 +231,7 @@ export class PaymentController {
 
           if (!deposit) {
             console.warn(
-              'No matching deposit found after successful monitor. Skipping auto-invest to avoid double-credit issues.'
+              'No matching deposit found after successful monitor. Skipping auto-complete to avoid inconsistencies.'
             );
           } else {
             const depositId = String(deposit._id);
@@ -242,25 +243,7 @@ export class PaymentController {
                 status: 'completed',
                 adminNote: 'Automatically completed after successful USDT transfer verification',
               });
-              console.log('Deposit updated to completed for auto-invest flow');
-            }
-
-            // If amount and planId are provided, automatically create investment
-            if (amount && planId) {
-              try {
-                console.log(`Creating investment from auto-deposit: amount=${amount}, planId=${planId}`);
-                const investment = await investmentService.createInvestment(userId, {
-                  planId,
-                  amount: parseFloat(amount.toString()),
-                });
-                console.log('Investment created successfully:', investment._id);
-                result.investmentId = String(investment._id);
-                result.investmentCreated = true;
-              } catch (investmentError: any) {
-                console.error('Error creating investment from auto-deposit:', investmentError);
-                result.investmentError = investmentError.message;
-                // Don't fail the whole request if investment creation fails
-              }
+              console.log('Deposit updated to completed after monitoring');
             }
           }
         } catch (depositError: any) {

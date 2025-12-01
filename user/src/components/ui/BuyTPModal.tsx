@@ -50,10 +50,16 @@ export default function BuyTPModal({
   const { user } = useUser();
   const [generateWallet, { isLoading: isGeneratingWallet }] = useGenerateWalletMutation();
   const [startMonitoring, { isLoading: isStartingMonitor }] = useStartMonitoringMutation();
-  const investmentWalletBalanceRaw = balance?.investmentWallet ?? 0;
-  // Normalize wallet balance to 2 decimal places to avoid tiny float issues
-  const investmentWalletBalance =
-    Math.round(Number(investmentWalletBalanceRaw) * 100) / 100;
+
+  // Raw balance from backend (used for display so user sees the real stored value)
+  const investmentWalletBalanceRaw = Number(balance?.investmentWallet ?? 0);
+
+  // Internal normalized value for safety checks:
+  // - Convert to cents and floor so we never allow spending more than backend balance
+  const investmentWalletBalanceCents = Math.floor(
+    investmentWalletBalanceRaw * 100 + 0.000001
+  );
+  const investmentWalletBalanceForChecks = investmentWalletBalanceCents / 100;
   const getPlanKey = (plan: InvestmentPlan) => String(plan.id || plan._id || plan.name);
   const selectedPlanId = selectedPlan ? getPlanKey(selectedPlan) : '';
 
@@ -278,9 +284,10 @@ export default function BuyTPModal({
       return;
     }
 
-    // Allow for tiny floating-point differences (e.g. 0.999999 vs 1.00)
-    const epsilon = 0.000001;
-    if (investmentWalletBalance + epsilon < amountNum) {
+    // Work in cents to avoid floating point issues and NEVER allow spending
+    // more than what the backend wallet actually has.
+    const amountCents = Math.round(amountNum * 100);
+    if (amountCents > investmentWalletBalanceCents) {
       setErrors({ amount: 'Insufficient investment wallet balance' });
       return;
     }
@@ -296,14 +303,10 @@ export default function BuyTPModal({
 
   const parsedAmount = parseFloat(amount);
   const hasValidAmount = !isNaN(parsedAmount) && parsedAmount >= minAmount;
-
-  // Use a small epsilon to avoid precision issues where the UI shows 2.00
-  // but the actual balance is 1.999999, which should still allow full use.
-  const walletEpsilon = 0.000001;
   const canInvestFromWallet =
     hasValidAmount &&
-    investmentWalletBalance > 0 &&
-    investmentWalletBalance + walletEpsilon >= parsedAmount;
+    investmentWalletBalanceForChecks > 0 &&
+    Math.round(parsedAmount * 100) <= investmentWalletBalanceCents;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Buy Trade Power (TP)" size="md">
@@ -320,7 +323,7 @@ export default function BuyTPModal({
           <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 flex items-center justify-between text-sm text-purple-900">
             <span>Investment Wallet</span>
             <span className="font-semibold">
-              {isWalletLoading ? 'Loading...' : `$${investmentWalletBalance.toFixed(2)}`}
+              {isWalletLoading ? 'Loading...' : `$${investmentWalletBalanceRaw}`}
             </span>
           </div>
         )}
