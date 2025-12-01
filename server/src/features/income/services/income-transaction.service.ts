@@ -164,6 +164,8 @@ export class IncomeTransactionService {
     return summary;
   }
 
+  
+
   /**
    * Get income by investment
    */
