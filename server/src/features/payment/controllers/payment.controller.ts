@@ -202,55 +202,53 @@ export class PaymentController {
 
       const result = await monitor.monitorAndTransfer(wallet);
 
-      // If a deposit was found, ensure it was added to the database
+      // If a deposit was found, ensure it was added to the database.
+      // NOTE: WalletMonitorService already attempts to create a deposit and
+      // mark it completed (which credits the investment wallet). Here we
+      // only avoid duplicates and optionally create an investment.
       if (result && result.found) {
         try {
-          // Check if the deposit was already recorded during the transfer process
-          const existingDeposits = await Deposit.find({
-            user: userId,
-            amount: result.amount,
-            createdAt: { $gte: new Date(Date.now() - 5 * 60 * 1000) }, // Deposits in the last 5 minutes
-          });
+          const txid = result.txid;
+          const amount = result.amount || 0;
 
-          // If no recent deposit was found, create one
-          if (!existingDeposits || existingDeposits.length === 0) {
-            console.log('No existing deposit found, creating a new one');
+          // Prefer matching by transaction hash if available
+          let deposit: any | null = null;
+          if (txid) {
+            deposit = await Deposit.findOne({ transactionHash: txid });
+          }
 
-            // Calculate amount
-            const amount = result.amount || 0;
-            // No fee - deposit service handles wallet update
-
-            // Create deposit record (status: pending)
-            const deposit = await depositService.createDeposit(userId, {
+          // Fallback: look for recent deposits with the same amount
+          if (!deposit) {
+            const recentDeposits = await Deposit.find({
+              user: userId,
               amount: amount,
-              currency: 'USDT',
-              network: 'BEP20',
-              transactionHash: result.txid,
-              walletAddress: walletAddress,
-              description: 'Manual deposit via ing',
-            });
+              createdAt: { $gte: new Date(Date.now() - 5 * 60 * 1000) }, // last 5 minutes
+            }).sort({ createdAt: -1 });
 
+            deposit = recentDeposits[0] || null;
+          }
+
+          if (!deposit) {
+            console.warn(
+              'No matching deposit found after successful monitor. Skipping auto-invest to avoid double-credit issues.'
+            );
+          } else {
             const depositId = String(deposit._id);
-            console.log('Deposit created with ID:', depositId);
+            result.depositId = depositId;
 
-            // Update deposit status to 'confirmed' first
-            await depositService.updateDepositStatus(depositId, {
-              status: 'confirmed',
-              confirmationCount: 1,
-            });
-            console.log('Deposit status updated to confirmed');
-
-            // Update deposit status to 'completed' - this will automatically update user's investment wallet
-            await depositService.updateDepositStatus(depositId, {
-              status: 'completed',
-              adminNote: 'Automatically completed after successful USDT transfer',
-            });
-            console.log('Deposit status updated to completed and user wallet updated');
+            // Ensure deposit is marked completed so wallet is credited exactly once
+            if (deposit.status === 'pending' || deposit.status === 'confirmed') {
+              await depositService.updateDepositStatus(depositId, {
+                status: 'completed',
+                adminNote: 'Automatically completed after successful USDT transfer verification',
+              });
+              console.log('Deposit updated to completed for auto-invest flow');
+            }
 
             // If amount and planId are provided, automatically create investment
             if (amount && planId) {
               try {
-                console.log(`Creating investment: amount=${amount}, planId=${planId}`);
+                console.log(`Creating investment from auto-deposit: amount=${amount}, planId=${planId}`);
                 const investment = await investmentService.createInvestment(userId, {
                   planId,
                   amount: parseFloat(amount.toString()),
@@ -259,50 +257,14 @@ export class PaymentController {
                 result.investmentId = String(investment._id);
                 result.investmentCreated = true;
               } catch (investmentError: any) {
-                console.error('Error creating investment:', investmentError);
+                console.error('Error creating investment from auto-deposit:', investmentError);
                 result.investmentError = investmentError.message;
                 // Don't fail the whole request if investment creation fails
               }
             }
-
-            // Add deposit ID to result
-            result.depositId = depositId;
-          } else {
-            console.log('Existing deposit found, not creating a duplicate');
-            const existingDeposit = existingDeposits[0];
-            const existingDepositId = String(existingDeposit._id);
-            
-            // If deposit is still pending, update it to completed
-            if (existingDeposit.status === 'pending' || existingDeposit.status === 'confirmed') {
-              await depositService.updateDepositStatus(existingDepositId, {
-                status: 'completed',
-                adminNote: 'Automatically completed after successful USDT transfer verification',
-              });
-              console.log('Existing deposit updated to completed');
-            }
-
-            // If amount and planId are provided, automatically create investment
-            if (amount && planId && existingDeposit.status !== 'completed') {
-              try {
-                console.log(`Creating investment: amount=${amount}, planId=${planId}`);
-                const investment = await investmentService.createInvestment(userId, {
-                  planId,
-                  amount: parseFloat(amount.toString()),
-                });
-                console.log('Investment created successfully:', investment._id);
-                result.investmentId = String(investment._id);
-                result.investmentCreated = true;
-              } catch (investmentError: any) {
-                console.error('Error creating investment:', investmentError);
-                result.investmentError = investmentError.message;
-                // Don't fail the whole request if investment creation fails
-              }
-            }
-            
-            result.depositId = existingDepositId;
           }
         } catch (depositError: any) {
-          console.error('Error ensuring deposit was recorded:', depositError);
+          console.error('Error handling auto-deposit after monitoring:', depositError);
           result.depositError = depositError.message;
         }
       }
