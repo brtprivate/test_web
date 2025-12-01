@@ -59,12 +59,15 @@ export class InvestmentService {
       throw new Error('User not found');
     }
 
-    // Determine which wallet to use (earning preferred, fallback to investment wallet)
+    // Determine which wallet to use
+    // Prefer the dedicated investment wallet when it has enough balance,
+    // and fall back to the earning wallet otherwise. This matches the
+    // frontend UX where "Investment Wallet" is shown as the primary source.
     let walletSource: 'earning' | 'investment' | null = null;
-    if (user.earningWallet >= data.amount) {
-      walletSource = 'earning';
-    } else if (user.investmentWallet >= data.amount) {
+    if (user.investmentWallet >= data.amount) {
       walletSource = 'investment';
+    } else if (user.earningWallet >= data.amount) {
+      walletSource = 'earning';
     }
 
     if (!walletSource) {
