@@ -282,7 +282,7 @@ export class InvestmentService {
       user: investment.user.toString(),
       incomeType: 'daily_roi',
       amount: dailyIncome,
-      description: `Daily ROI from investment (${investment.dailyROI}%)`,
+      description: `Trade profit from investment (${investment.dailyROI}%)`,
       referenceId: String(investment._id),
       investmentId: String(investment._id),
       incomeDate: new Date(),

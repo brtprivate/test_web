@@ -276,7 +276,7 @@ export class InvestmentPlanService {
       },
       {
         name: 'Bot Slab One',
-        description: '$1 - $499 | Daily ROI 7% for 20 days',
+        description: '$1 - $499 | Trade profit 7% for 20 days',
         minAmount: 1,
         maxAmount: 499,
         dailyROI: 7,
@@ -288,7 +288,7 @@ export class InvestmentPlanService {
       },
       {
         name: 'Bot Slab Two',
-        description: '$500 - $4,999 | Daily ROI 8% for 20 days',
+        description: '$500 - $4,999 | Trade profit 8% for 20 days',
         minAmount: 500,
         maxAmount: 4999,
         dailyROI: 8,
@@ -300,7 +300,7 @@ export class InvestmentPlanService {
       },
       {
         name: 'Bot Slab Elite',
-        description: '$5,000+ | Daily ROI 9% for 20 days',
+        description: '$5,000+ | Trade profit 9% for 20 days',
         minAmount: 5000,
         dailyROI: 9,
         compoundingEnabled: false,

@@ -18,9 +18,6 @@ import { useUser } from '@/features/users/hooks/useUser';
 import { useWallet } from '@/features/wallet/hooks/useWallet';
 
 const formatAmountRange = (plan: InvestmentPlan) => {
-  if (typeof plan.maxAmount === 'number') {
-    return `$${plan.minAmount.toLocaleString()} - $${plan.maxAmount.toLocaleString()}`;
-  }
   return `$${plan.minAmount.toLocaleString()} +`;
 };
 
@@ -112,19 +109,6 @@ export default function BuyTPModal({
         ? Math.min(...availablePlans.map((p) => p.minAmount))
         : 10;
 
-  const planMaxAmounts = botPlans
-    .map((p) => (typeof p.maxAmount === 'number' ? p.maxAmount : undefined))
-    .filter((value): value is number => typeof value === 'number' && !Number.isNaN(value));
-
-  const fallbackMaxCandidates = botPlans.map((p) =>
-    typeof p.maxAmount === 'number' ? p.maxAmount : p.minAmount + 1000
-  );
-  const fallbackMax =
-    fallbackMaxCandidates.length > 0 ? Math.max(...fallbackMaxCandidates) : 10000;
-
-  const maxAmount = selectedPlan && typeof selectedPlan.maxAmount === 'number'
-    ? selectedPlan.maxAmount
-    : planMaxAmounts.length > 0 ? Math.max(...planMaxAmounts) : fallbackMax;
 
   const amountNum = parseFloat(amount);
   const hasAmount = !Number.isNaN(amountNum);
@@ -132,18 +116,15 @@ export default function BuyTPModal({
   const matchingPlans = useMemo(() => {
     if (!hasAmount) return [];
 
-    // If we have a selected plan (e.g. from initialPlanId), check if amount fits it
-    if (selectedPlan) {
-      const fits = amountNum >= selectedPlan.minAmount &&
-        (typeof selectedPlan.maxAmount !== 'number' || amountNum <= selectedPlan.maxAmount);
-      if (fits) return [selectedPlan];
-    }
+      // If we have a selected plan (e.g. from initialPlanId), check if amount fits it
+      if (selectedPlan) {
+        const fits = amountNum >= selectedPlan.minAmount;
+        if (fits) return [selectedPlan];
+      }
 
-    return availablePlans.filter(
-      (plan) =>
-        amountNum >= plan.minAmount &&
-        (typeof plan.maxAmount !== 'number' || amountNum <= plan.maxAmount)
-    );
+      return availablePlans.filter(
+        (plan) => amountNum >= plan.minAmount
+      );
   }, [availablePlans, amountNum, hasAmount, selectedPlan]);
 
   useEffect(() => {
@@ -180,7 +161,7 @@ export default function BuyTPModal({
     const fetchWallet = async () => {
       if (showPaymentSection && amount && !walletAddress && !isGeneratingWallet) {
         const amountNum = parseFloat(amount);
-        if (!isNaN(amountNum) && amountNum >= minAmount && amountNum <= maxAmount && selectedPlan) {
+        if (!isNaN(amountNum) && amountNum >= minAmount && selectedPlan) {
           try {
             const result = await generateWallet().unwrap();
             if (result.status && result.wallet) {
@@ -197,7 +178,7 @@ export default function BuyTPModal({
     if (showPaymentSection) {
       fetchWallet();
     }
-  }, [showPaymentSection, amount, minAmount, maxAmount, selectedPlan, isGeneratingWallet]);
+  }, [showPaymentSection, amount, minAmount, selectedPlan, isGeneratingWallet]);
 
   const validateAmount = () => {
     const newErrors: { amount?: string } = {};
@@ -207,14 +188,9 @@ export default function BuyTPModal({
       newErrors.amount = 'Please enter a valid amount';
     } else if (amountNum < minAmount) {
       newErrors.amount = `Minimum amount is $${minAmount}`;
-    } else if (amountNum > maxAmount) {
-      newErrors.amount = `Maximum amount is $${maxAmount}`;
     } else if (selectedPlan) {
-      if (
-        amountNum < selectedPlan.minAmount ||
-        (typeof selectedPlan.maxAmount === 'number' && amountNum > selectedPlan.maxAmount)
-      ) {
-        newErrors.amount = `Amount must be within ${formatAmountRange(selectedPlan)}`;
+      if (amountNum < selectedPlan.minAmount) {
+        newErrors.amount = `Minimum amount is $${selectedPlan.minAmount}`;
       }
     } else if (matchingPlans.length === 0) {
       newErrors.amount = 'Enter an amount that fits an active plan';
@@ -364,7 +340,7 @@ export default function BuyTPModal({
               setErrors({ ...errors, amount: undefined });
             }}
             error={errors.amount}
-            helperText={`Min: $${minAmount} | Max: $${maxAmount}`}
+            helperText={`Min: $${minAmount}`}
           />
         </div>
 

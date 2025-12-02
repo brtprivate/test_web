@@ -78,18 +78,79 @@ class TelegramService {
     };
   }
 
+  /**
+   * Build secure button for navigation without exposing tokens
+   * Only uses base URL path - frontend should handle authentication via session or Telegram initData
+   * SECURITY: This method ensures no tokens are included in URLs
+   * The web_app button will automatically pass Telegram user data via initData for authentication
+   */
+  private buildSecureNavigationButton(path: string, buttonText: string): InlineKeyboardMarkup {
+    const baseUrl = this.getAppBaseUrl();
+    // Only use the path, no tokens or sensitive data
+    // Telegram web_app buttons automatically pass user data via initData parameter
+    const secureUrl = this.ensureHttps(`${baseUrl}${path.startsWith('/') ? path : `/${path}`}`);
+    
+    // Security validation: Ensure no tokens in URL
+    if (!this.validateUrlSecurity(secureUrl)) {
+      console.error('❌ [TELEGRAM][SECURITY] Security validation failed for navigation button URL');
+      throw new Error('Security validation failed: URL contains sensitive data');
+    }
+    
+    console.log('🔒 [TELEGRAM][SECURITY] Building secure navigation button (no token, uses Telegram initData)', {
+      path,
+      buttonText,
+      urlPreview: secureUrl.substring(0, 50) + '...',
+    });
+    
+    return {
+      inline_keyboard: [
+        [
+          {
+            text: buttonText,
+            web_app: { url: secureUrl },
+          },
+        ],
+      ],
+    };
+  }
+
+
   private buildLaunchReplyKeyboard(): ReplyKeyboardMarkup {
     return {
       keyboard: [
         [
           {
-            text: 'launch',
+            text: '🚀 Launch',
+          },
+        ],
+        [
+          {
+            text: '👤 Support',
+          },
+          {
+            text: '📖 Intro',
+          },
+        ],
+        [
+          {
+            text: '📚 Q&A',
+          },
+          {
+            text: '📢 News',
+          },
+        ],
+        [
+          {
+            text: '👥 Referral',
+          },
+          {
+            text: '🌐 Language',
           },
         ],
       ],
       resize_keyboard: true,
       one_time_keyboard: false,
-      input_field_placeholder: 'Tap launch or type a command',
+      input_field_placeholder: 'Tap a button or type a command',
     };
   }
 
@@ -146,11 +207,26 @@ class TelegramService {
     }
   }
 
+  /**
+   * Build login URL with token - SECURITY: Only use for /start and launch commands
+   * This method should NEVER be called for other commands to prevent token leakage
+   */
   private buildLoginUrl(chatId: number, token: string): string {
+    // Security validation
+    if (!token || token.trim() === '') {
+      throw new Error('Cannot build login URL: token is empty');
+    }
+    
+    // Additional security: validate token format (should be JWT-like)
+    if (token.length < 10) {
+      console.warn('⚠️ [TELEGRAM][SECURITY] Suspicious token length detected');
+    }
+
     const baseUrl = this.getAppBaseUrl();
-    console.log(`🔗 [TELEGRAM] Preparing login URL`, {
+    console.log(`🔗 [TELEGRAM] Preparing login URL (SECURE - /start or launch only)`, {
       chatId,
       baseUrl,
+      tokenLength: token.length,
     });
     const params = new URLSearchParams({
       chatId: String(chatId),
@@ -168,6 +244,29 @@ class TelegramService {
       params.set('ts', Date.now().toString());
       return this.ensureHttps(`${baseUrl}${separator}${params.toString()}`);
     }
+  }
+
+  /**
+   * Security check: Validate that URL doesn't contain sensitive tokens
+   * This is a safety check to prevent accidental token exposure
+   */
+  private validateUrlSecurity(url: string): boolean {
+    // Check for common token patterns in URL
+    const suspiciousPatterns = [
+      /token=[^&]+/i,
+      /auth=[^&]+/i,
+      /jwt=[^&]+/i,
+      /access_token=[^&]+/i,
+    ];
+
+    for (const pattern of suspiciousPatterns) {
+      if (pattern.test(url)) {
+        console.warn('⚠️ [TELEGRAM][SECURITY] Suspicious token pattern detected in URL');
+        return false;
+      }
+    }
+
+    return true;
   }
 
   private extractSignupPayload(msg: Message, referralCode?: string): SignupDto {
@@ -735,8 +834,8 @@ class TelegramService {
       }
     });
 
-    // Launch/Open commands
-    this.bot.onText(/^(open|launch)$/i, async (msg: Message) => {
+    // Launch/Open commands - handles both text commands and button clicks
+    this.bot.onText(/^(open|launch|🚀 launch)$/i, async (msg: Message) => {
       const chatId = this.getChatId(msg);
       console.log('⚡ [TELEGRAM] launch/open command received', {
         chatId,
@@ -771,6 +870,174 @@ class TelegramService {
       }
     });
 
+    // Support button handler
+    this.bot.onText(/^(👤 support|support)$/i, async (msg: Message) => {
+      const chatId = this.getChatId(msg);
+      console.log('⚡ [TELEGRAM] Support button clicked', { chatId });
+
+      try {
+        await this.ensureUserAndToken(msg);
+        
+        await this.bot!.sendMessage(
+          chatId,
+          '👤 *Support*\n\n' +
+          'Need help? Contact our support team for assistance with your account or any questions.\n\n' +
+          'Tap the button below to get support.',
+          {
+            parse_mode: 'Markdown',
+            reply_markup: this.buildSecureNavigationButton('/support', '👤 Get Support'),
+          }
+        );
+        console.log('💬 [TELEGRAM] Sent support response (button click)', { chatId });
+      } catch (error: any) {
+        console.error('❌ [TELEGRAM] Failed to process support button:', error);
+        await this.bot!.sendMessage(
+          chatId,
+          '❌ Could not access support right now. Please use /start first to register.',
+        );
+      }
+    });
+
+    // Intro button handler
+    this.bot.onText(/^(📖 intro|intro|introduction)$/i, async (msg: Message) => {
+      const chatId = this.getChatId(msg);
+      console.log('⚡ [TELEGRAM] Intro button clicked', { chatId });
+
+      try {
+        await this.ensureUserAndToken(msg);
+        
+        await this.bot!.sendMessage(
+          chatId,
+          '📖 *Introduction*\n\n' +
+          'Learn about AiCrypto Bot, how it works, and get started with your investment journey.\n\n' +
+          'Tap the button below to read the introduction.',
+          {
+            parse_mode: 'Markdown',
+            reply_markup: this.buildSecureNavigationButton('/introduction', '📖 Read Introduction'),
+          }
+        );
+        console.log('💬 [TELEGRAM] Sent intro response (button click)', { chatId });
+      } catch (error: any) {
+        console.error('❌ [TELEGRAM] Failed to process intro button:', error);
+        await this.bot!.sendMessage(
+          chatId,
+          '❌ Could not access introduction right now. Please use /start first to register.',
+        );
+      }
+    });
+
+    // Q&A button handler
+    this.bot.onText(/^(📚 q&a|qa|q and a)$/i, async (msg: Message) => {
+      const chatId = this.getChatId(msg);
+      console.log('⚡ [TELEGRAM] Q&A button clicked', { chatId });
+
+      try {
+        await this.ensureUserAndToken(msg);
+        
+        await this.bot!.sendMessage(
+          chatId,
+          '📚 *Q&A - Questions & Answers*\n\n' +
+          'Get answers to frequently asked questions about AiCrypto Bot.\n\n' +
+          'Tap the button below to open Q&A section.',
+          {
+            parse_mode: 'Markdown',
+            reply_markup: this.buildSecureNavigationButton('/qa', '📚 Open Q&A'),
+          }
+        );
+        console.log('💬 [TELEGRAM] Sent Q&A response (button click)', { chatId });
+      } catch (error: any) {
+        console.error('❌ [TELEGRAM] Failed to process Q&A button:', error);
+        await this.bot!.sendMessage(
+          chatId,
+          '❌ Could not access Q&A right now. Please use /start first to register.',
+        );
+      }
+    });
+
+    // News button handler
+    this.bot.onText(/^(📢 news|news)$/i, async (msg: Message) => {
+      const chatId = this.getChatId(msg);
+      console.log('⚡ [TELEGRAM] News button clicked', { chatId });
+
+      try {
+        await this.ensureUserAndToken(msg);
+        
+        await this.bot!.sendMessage(
+          chatId,
+          '📢 *Official News*\n\n' +
+          'Stay updated with the latest official news and announcements from AiCrypto Bot.\n\n' +
+          'Tap the button below to view news.',
+          {
+            parse_mode: 'Markdown',
+            reply_markup: this.buildSecureNavigationButton('/news', '📢 View News'),
+          }
+        );
+        console.log('💬 [TELEGRAM] Sent news response (button click)', { chatId });
+      } catch (error: any) {
+        console.error('❌ [TELEGRAM] Failed to process news button:', error);
+        await this.bot!.sendMessage(
+          chatId,
+          '❌ Could not access news right now. Please use /start first to register.',
+        );
+      }
+    });
+
+    // Referral button handler
+    this.bot.onText(/^(👥 referral|referral)$/i, async (msg: Message) => {
+      const chatId = this.getChatId(msg);
+      console.log('⚡ [TELEGRAM] Referral button clicked', { chatId });
+
+      try {
+        await this.ensureUserAndToken(msg);
+        
+        await this.bot!.sendMessage(
+          chatId,
+          '👥 *Referral Program*\n\n' +
+          'Invite friends and earn rewards! Share your referral link and get bonuses when they join.\n\n' +
+          'Tap the button below to view your referral program.',
+          {
+            parse_mode: 'Markdown',
+            reply_markup: this.buildSecureNavigationButton('/friends', '👥 View Referrals'),
+          }
+        );
+        console.log('💬 [TELEGRAM] Sent referral response (button click)', { chatId });
+      } catch (error: any) {
+        console.error('❌ [TELEGRAM] Failed to process referral button:', error);
+        await this.bot!.sendMessage(
+          chatId,
+          '❌ Could not access referral program right now. Please use /start first to register.',
+        );
+      }
+    });
+
+    // Language button handler
+    this.bot.onText(/^(🌐 language|language)$/i, async (msg: Message) => {
+      const chatId = this.getChatId(msg);
+      console.log('⚡ [TELEGRAM] Language button clicked', { chatId });
+
+      try {
+        await this.ensureUserAndToken(msg);
+        
+        await this.bot!.sendMessage(
+          chatId,
+          '🌐 *Language Settings*\n\n' +
+          'Change your preferred language for the AiCrypto Bot interface.\n\n' +
+          'Tap the button below to change language.',
+          {
+            parse_mode: 'Markdown',
+            reply_markup: this.buildSecureNavigationButton('/language', '🌐 Change Language'),
+          }
+        );
+        console.log('💬 [TELEGRAM] Sent language response (button click)', { chatId });
+      } catch (error: any) {
+        console.error('❌ [TELEGRAM] Failed to process language button:', error);
+        await this.bot!.sendMessage(
+          chatId,
+          '❌ Could not access language settings right now. Please use /start first to register.',
+        );
+      }
+    });
+
     // Get Chat ID command
     this.bot.onText(/\/myid/, async (msg: Message) => {
       const chatId = this.getChatId(msg);
@@ -786,7 +1053,6 @@ class TelegramService {
     // Help command
     this.bot.onText(/\/help/, async (msg: Message) => {
       const chatId = this.getChatId(msg);
-      const appUrl = this.getAppBaseUrl();
       
       await this.bot!.sendMessage(
         chatId,
@@ -806,8 +1072,8 @@ class TelegramService {
         `1. Use /start once and we auto-register you\n` +
         `2. Use "launch" to auto-login anytime\n` +
         `3. Your Chat ID (${chatId}) stays linked with your account\n\n` +
-        `*Visit App:*\n` +
-        `[Click here to open the app](${appUrl})`,
+        `*Security:*\n` +
+        `All commands use secure authentication. Use /start or "launch" to login.`,
         { 
           parse_mode: 'Markdown',
           disable_web_page_preview: false
@@ -815,182 +1081,176 @@ class TelegramService {
       );
     });
 
-    // Q&A command
+    // Q&A command - Secure version without token in URL
     this.bot.onText(/\/qa/, async (msg: Message) => {
       const chatId = this.getChatId(msg);
       console.log('⚡ [TELEGRAM] /qa command received', { chatId });
 
       try {
-        const { token } = await this.ensureUserAndToken(msg);
-        const qaUrl = this.buildLoginUrl(chatId, token).replace(/\?.*/, '') + '/qa?' + new URLSearchParams({
-          chatId: String(chatId),
-          token,
-          source: 'telegram',
-          ts: Date.now().toString(),
-        }).toString();
-
-        await this.sendMessageWithLink(
+        // Verify user exists but don't generate token for URL
+        await this.ensureUserAndToken(msg);
+        
+        await this.bot!.sendMessage(
           chatId,
-          '📚 Q&A - Questions & Answers',
-          this.ensureHttps(qaUrl),
-          'Get answers to frequently asked questions about AiCrypto Bot.'
+          '📚 *Q&A - Questions & Answers*\n\n' +
+          'Get answers to frequently asked questions about AiCrypto Bot.\n\n' +
+          'Tap the button below to open Q&A section.',
+          {
+            parse_mode: 'Markdown',
+            reply_markup: this.buildSecureNavigationButton('/qa', '📚 Open Q&A'),
+          }
         );
-        console.log('💬 [TELEGRAM] Sent /qa response', { chatId });
+        console.log('💬 [TELEGRAM] Sent /qa response (secure, no token)', { chatId });
       } catch (error: any) {
         console.error('❌ [TELEGRAM] Failed to process /qa:', error);
         await this.bot!.sendMessage(
           chatId,
-          '❌ Could not access Q&A right now. Please try /start first.',
+          '❌ Could not access Q&A right now. Please use /start first to register.',
         );
       }
     });
 
-    // Official News command
+    // Official News command - Secure version without token in URL
     this.bot.onText(/\/news/, async (msg: Message) => {
       const chatId = this.getChatId(msg);
       console.log('⚡ [TELEGRAM] /news command received', { chatId });
 
       try {
-        const { token } = await this.ensureUserAndToken(msg);
-        const newsUrl = this.buildLoginUrl(chatId, token).replace(/\?.*/, '') + '/news?' + new URLSearchParams({
-          chatId: String(chatId),
-          token,
-          source: 'telegram',
-          ts: Date.now().toString(),
-        }).toString();
-
-        await this.sendMessageWithLink(
+        // Verify user exists but don't generate token for URL
+        await this.ensureUserAndToken(msg);
+        
+        await this.bot!.sendMessage(
           chatId,
-          '📢 Official News',
-          this.ensureHttps(newsUrl),
-          'Stay updated with the latest official news and announcements from AiCrypto Bot.'
+          '📢 *Official News*\n\n' +
+          'Stay updated with the latest official news and announcements from AiCrypto Bot.\n\n' +
+          'Tap the button below to view news.',
+          {
+            parse_mode: 'Markdown',
+            reply_markup: this.buildSecureNavigationButton('/news', '📢 View News'),
+          }
         );
-        console.log('💬 [TELEGRAM] Sent /news response', { chatId });
+        console.log('💬 [TELEGRAM] Sent /news response (secure, no token)', { chatId });
       } catch (error: any) {
         console.error('❌ [TELEGRAM] Failed to process /news:', error);
         await this.bot!.sendMessage(
           chatId,
-          '❌ Could not access news right now. Please try /start first.',
+          '❌ Could not access news right now. Please use /start first to register.',
         );
       }
     });
 
-    // Support command
+    // Support command - Secure version without token in URL
     this.bot.onText(/\/support/, async (msg: Message) => {
       const chatId = this.getChatId(msg);
       console.log('⚡ [TELEGRAM] /support command received', { chatId });
 
       try {
-        const { token } = await this.ensureUserAndToken(msg);
-        const supportUrl = this.buildLoginUrl(chatId, token).replace(/\?.*/, '') + '/support?' + new URLSearchParams({
-          chatId: String(chatId),
-          token,
-          source: 'telegram',
-          ts: Date.now().toString(),
-        }).toString();
-
-        await this.sendMessageWithLink(
+        // Verify user exists but don't generate token for URL
+        await this.ensureUserAndToken(msg);
+        
+        await this.bot!.sendMessage(
           chatId,
-          '👤 Support',
-          this.ensureHttps(supportUrl),
-          'Need help? Contact our support team for assistance with your account or any questions.'
+          '👤 *Support*\n\n' +
+          'Need help? Contact our support team for assistance with your account or any questions.\n\n' +
+          'Tap the button below to get support.',
+          {
+            parse_mode: 'Markdown',
+            reply_markup: this.buildSecureNavigationButton('/support', '👤 Get Support'),
+          }
         );
-        console.log('💬 [TELEGRAM] Sent /support response', { chatId });
+        console.log('💬 [TELEGRAM] Sent /support response (secure, no token)', { chatId });
       } catch (error: any) {
         console.error('❌ [TELEGRAM] Failed to process /support:', error);
         await this.bot!.sendMessage(
           chatId,
-          '❌ Could not access support right now. Please try /start first.',
+          '❌ Could not access support right now. Please use /start first to register.',
         );
       }
     });
 
-    // Introduction command
+    // Introduction command - Secure version without token in URL
     this.bot.onText(/\/(intro|introduction)/, async (msg: Message) => {
       const chatId = this.getChatId(msg);
       console.log('⚡ [TELEGRAM] /intro or /introduction command received', { chatId });
 
       try {
-        const { token } = await this.ensureUserAndToken(msg);
-        const introUrl = this.buildLoginUrl(chatId, token).replace(/\?.*/, '') + '/introduction?' + new URLSearchParams({
-          chatId: String(chatId),
-          token,
-          source: 'telegram',
-          ts: Date.now().toString(),
-        }).toString();
-
-        await this.sendMessageWithLink(
+        // Verify user exists but don't generate token for URL
+        await this.ensureUserAndToken(msg);
+        
+        await this.bot!.sendMessage(
           chatId,
-          '📖 Introduction',
-          this.ensureHttps(introUrl),
-          'Learn about AiCrypto Bot, how it works, and get started with your investment journey.'
+          '📖 *Introduction*\n\n' +
+          'Learn about AiCrypto Bot, how it works, and get started with your investment journey.\n\n' +
+          'Tap the button below to read the introduction.',
+          {
+            parse_mode: 'Markdown',
+            reply_markup: this.buildSecureNavigationButton('/introduction', '📖 Read Introduction'),
+          }
         );
-        console.log('💬 [TELEGRAM] Sent /introduction response', { chatId });
+        console.log('💬 [TELEGRAM] Sent /introduction response (secure, no token)', { chatId });
       } catch (error: any) {
         console.error('❌ [TELEGRAM] Failed to process /introduction:', error);
         await this.bot!.sendMessage(
           chatId,
-          '❌ Could not access introduction right now. Please try /start first.',
+          '❌ Could not access introduction right now. Please use /start first to register.',
         );
       }
     });
 
-    // Language command
+    // Language command - Secure version without token in URL
     this.bot.onText(/\/language/, async (msg: Message) => {
       const chatId = this.getChatId(msg);
       console.log('⚡ [TELEGRAM] /language command received', { chatId });
 
       try {
-        const { token } = await this.ensureUserAndToken(msg);
-        const languageUrl = this.buildLoginUrl(chatId, token).replace(/\?.*/, '') + '/language?' + new URLSearchParams({
-          chatId: String(chatId),
-          token,
-          source: 'telegram',
-          ts: Date.now().toString(),
-        }).toString();
-
-        await this.sendMessageWithLink(
+        // Verify user exists but don't generate token for URL
+        await this.ensureUserAndToken(msg);
+        
+        await this.bot!.sendMessage(
           chatId,
-          '🌐 Language Settings',
-          this.ensureHttps(languageUrl),
-          'Change your preferred language for the AiCrypto Bot interface.'
+          '🌐 *Language Settings*\n\n' +
+          'Change your preferred language for the AiCrypto Bot interface.\n\n' +
+          'Tap the button below to change language.',
+          {
+            parse_mode: 'Markdown',
+            reply_markup: this.buildSecureNavigationButton('/language', '🌐 Change Language'),
+          }
         );
-        console.log('💬 [TELEGRAM] Sent /language response', { chatId });
+        console.log('💬 [TELEGRAM] Sent /language response (secure, no token)', { chatId });
       } catch (error: any) {
         console.error('❌ [TELEGRAM] Failed to process /language:', error);
         await this.bot!.sendMessage(
           chatId,
-          '❌ Could not access language settings right now. Please try /start first.',
+          '❌ Could not access language settings right now. Please use /start first to register.',
         );
       }
     });
 
-    // Referral command
+    // Referral command - Secure version without token in URL
     this.bot.onText(/\/referral/, async (msg: Message) => {
       const chatId = this.getChatId(msg);
       console.log('⚡ [TELEGRAM] /referral command received', { chatId });
 
       try {
-        const { token } = await this.ensureUserAndToken(msg);
-        const referralUrl = this.buildLoginUrl(chatId, token).replace(/\?.*/, '') + '/friends?' + new URLSearchParams({
-          chatId: String(chatId),
-          token,
-          source: 'telegram',
-          ts: Date.now().toString(),
-        }).toString();
-
-        await this.sendMessageWithLink(
+        // Verify user exists but don't generate token for URL
+        await this.ensureUserAndToken(msg);
+        
+        await this.bot!.sendMessage(
           chatId,
-          '👥 Referral Program',
-          this.ensureHttps(referralUrl),
-          'Invite friends and earn rewards! Share your referral link and get bonuses when they join.'
+          '👥 *Referral Program*\n\n' +
+          'Invite friends and earn rewards! Share your referral link and get bonuses when they join.\n\n' +
+          'Tap the button below to view your referral program.',
+          {
+            parse_mode: 'Markdown',
+            reply_markup: this.buildSecureNavigationButton('/friends', '👥 View Referrals'),
+          }
         );
-        console.log('💬 [TELEGRAM] Sent /referral response', { chatId });
+        console.log('💬 [TELEGRAM] Sent /referral response (secure, no token)', { chatId });
       } catch (error: any) {
         console.error('❌ [TELEGRAM] Failed to process /referral:', error);
         await this.bot!.sendMessage(
           chatId,
-          '❌ Could not access referral program right now. Please try /start first.',
+          '❌ Could not access referral program right now. Please use /start first to register.',
         );
       }
     });
@@ -1033,9 +1293,11 @@ class TelegramService {
 
   /**
    * Send message with masked URL (Markdown format)
+   * ⚠️ SECURITY WARNING: Do NOT use this method with URLs containing tokens!
+   * Only use for non-sensitive links. For navigation buttons, use buildSecureNavigationButton instead.
    * @param chatId - Telegram chat ID
    * @param text - Link text to display
-   * @param url - URL to link to
+   * @param url - URL to link to (MUST NOT contain tokens or sensitive data)
    * @param additionalText - Optional additional text before/after link
    */
   async sendMessageWithLink(
@@ -1046,6 +1308,15 @@ class TelegramService {
   ): Promise<void> {
     if (!this.bot) {
       throw new Error('Telegram bot is not initialized');
+    }
+
+    // Security check: Warn if URL contains tokens
+    if (!this.validateUrlSecurity(url)) {
+      console.error('❌ [TELEGRAM][SECURITY] Blocked sendMessageWithLink: URL contains sensitive data', {
+        chatId,
+        urlPreview: url.substring(0, 50) + '...',
+      });
+      throw new Error('Security violation: Cannot send message with URL containing tokens');
     }
 
     const linkText = `[${text}](${url})`;
@@ -1061,9 +1332,11 @@ class TelegramService {
 
   /**
    * Send message with masked URL (HTML format)
+   * ⚠️ SECURITY WARNING: Do NOT use this method with URLs containing tokens!
+   * Only use for non-sensitive links. For navigation buttons, use buildSecureNavigationButton instead.
    * @param chatId - Telegram chat ID
    * @param text - Link text to display
-   * @param url - URL to link to
+   * @param url - URL to link to (MUST NOT contain tokens or sensitive data)
    * @param additionalText - Optional additional text before/after link
    */
   async sendMessageWithLinkHTML(
@@ -1074,6 +1347,15 @@ class TelegramService {
   ): Promise<void> {
     if (!this.bot) {
       throw new Error('Telegram bot is not initialized');
+    }
+
+    // Security check: Warn if URL contains tokens
+    if (!this.validateUrlSecurity(url)) {
+      console.error('❌ [TELEGRAM][SECURITY] Blocked sendMessageWithLinkHTML: URL contains sensitive data', {
+        chatId,
+        urlPreview: url.substring(0, 50) + '...',
+      });
+      throw new Error('Security violation: Cannot send message with URL containing tokens');
     }
 
     const linkText = `<a href="${url}">${text}</a>`;
@@ -1089,8 +1371,10 @@ class TelegramService {
 
   /**
    * Send message with multiple masked links
+   * ⚠️ SECURITY WARNING: Do NOT use this method with URLs containing tokens!
+   * Only use for non-sensitive links. For navigation buttons, use buildSecureNavigationButton instead.
    * @param chatId - Telegram chat ID
-   * @param links - Array of {text, url} objects
+   * @param links - Array of {text, url} objects (URLs MUST NOT contain tokens or sensitive data)
    * @param message - Optional message text
    */
   async sendMessageWithMultipleLinks(
@@ -1100,6 +1384,18 @@ class TelegramService {
   ): Promise<void> {
     if (!this.bot) {
       throw new Error('Telegram bot is not initialized');
+    }
+
+    // Security check: Validate all URLs
+    for (const link of links) {
+      if (!this.validateUrlSecurity(link.url)) {
+        console.error('❌ [TELEGRAM][SECURITY] Blocked sendMessageWithMultipleLinks: URL contains sensitive data', {
+          chatId,
+          linkText: link.text,
+          urlPreview: link.url.substring(0, 50) + '...',
+        });
+        throw new Error('Security violation: Cannot send message with URL containing tokens');
+      }
     }
 
     const linkTexts = links.map(link => `[${link.text}](${link.url})`).join('\n');

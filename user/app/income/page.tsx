@@ -38,10 +38,18 @@ export default function IncomePage() {
     });
   };
 
+  // Helper function to replace ROI text in descriptions
+  const formatDescription = (description: string) => {
+    return description
+      .replace(/Daily ROI/gi, 'Trade profit')
+      .replace(/daily ROI/gi, 'Trade profit')
+      .replace(/\bROI\b/gi, 'Trade profit');
+  };
+
   // Get income type label
   const getIncomeTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      daily_roi: 'Daily ROI',
+      daily_roi: 'Trade profit',
       referral: 'Referral',
       team_income: 'Team Income',
       bonus: 'Bonus',
@@ -109,7 +117,7 @@ export default function IncomePage() {
             </Card>
             <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
               <div className="text-center">
-                <p className="text-xs sm:text-sm text-gray-600 mb-1">Daily ROI</p>
+                <p className="text-xs sm:text-sm text-gray-600 mb-1">Trade profit</p>
                 <p className="text-lg sm:text-xl font-bold text-gray-900">
                   ${summary.dailyROI?.toFixed(2) || '0.00'}
                 </p>
@@ -224,7 +232,7 @@ export default function IncomePage() {
                           </Badge>
                         </div>
                         <p className="text-sm text-gray-600 line-clamp-2">
-                          {transaction.description}
+                          {formatDescription(transaction.description)}
                         </p>
                       </div>
                       <div className="text-right ml-3">
