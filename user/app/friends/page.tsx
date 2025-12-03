@@ -48,7 +48,7 @@ export default function FriendsPage() {
   // Share referral link
   const handleShare = async () => {
     if (referralLink) {
-      const shareText = `💰 Earn $500 USDT for free, join AiCrypto now!\n\n${referralLink}`;
+      const shareText = referralLink;
       if (navigator.share) {
         try {
           await navigator.share({ text: shareText });
@@ -328,10 +328,6 @@ export default function FriendsPage() {
             <h2 className="text-lg font-bold text-white">Your Referral Link</h2>
             <div className="border-2 border-dashed border-white/80 rounded-xl p-4 relative bg-white/10 backdrop-blur-sm">
               <div className="flex flex-col gap-2 pr-16">
-                <div className="flex items-center gap-2 text-sm font-bold text-white">
-                  <span>🤑 🤑</span>
-                  <span>Earn $500 USDT for free, join AiCrypto now!</span>
-                </div>
                 <p className="text-xs text-white/90 font-mono break-all">
                   {referralLink}
                 </p>

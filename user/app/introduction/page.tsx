@@ -33,8 +33,7 @@ export default function IntroductionPage() {
         {/* Company Info Section */}
         <div className="text-gray-800 leading-relaxed">
           <p>
-            AiCrypto LLC is a legally incorporated entity in Colorado, USA
-            ( Registration ID: <span className="text-blue-500">17078227</span> <span className="inline-block align-middle">📄</span> ), operating under Colorado's commercial laws
+            AiCrypto LLC is a legally incorporated entity in Colorado, USA, operating under Colorado's commercial laws
             and financial regulatory frameworks.
           </p>
         </div>
@@ -46,8 +45,7 @@ export default function IntroductionPage() {
           </h2>
           <p className="text-gray-800 leading-relaxed">
             Validate our credentials via the Colorado Secretary of State's Portal
-            ( <a href="https://www.coloradosos.gov/biz/CertificateSearchCriteria.do" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline break-all">https://www.coloradosos.gov/biz/CertificateSearchCriteria.do</a> <span className="inline-block align-middle">📄</span> ) using our r
-            egistration ID.
+            ( <a href="https://www.coloradosos.gov/biz/CertificateSearchCriteria.do" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline break-all">https://www.coloradosos.gov/biz/CertificateSearchCriteria.do</a> <span className="inline-block align-middle">📄</span> ).
           </p>
         </div>
 
