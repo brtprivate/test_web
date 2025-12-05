@@ -47,8 +47,9 @@ export class InvestmentService {
         throw new Error(`Maximum investment amount is $${plan.maxAmount}`);
       }
       if (existingInvestment && projectedTotal > plan.maxAmount) {
+        const remainingAmount = plan.maxAmount - baseAmount;
         throw new Error(
-          `Adding $${data.amount} exceeds the ${plan.name} plan limit of $${plan.maxAmount}. Current allocation: $${baseAmount}`
+          `Adding $${data.amount} exceeds the ${plan.name} plan limit of $${plan.maxAmount}. Current allocation: $${baseAmount.toFixed(2)}. You can invest up to $${remainingAmount.toFixed(2)} more.`
         );
       }
     }
@@ -74,8 +75,9 @@ export class InvestmentService {
       throw new Error('Insufficient balance in earning or investment wallet');
     }
 
-    const qualifiesForTopUp =
-      !!existingInvestment && data.amount <= (existingInvestment.amount ?? 0);
+    // If same plan has active investment, always top-up (merge into existing)
+    // Otherwise create new investment
+    const qualifiesForTopUp = !!existingInvestment;
     const walletMemo = qualifiesForTopUp
       ? `Investment top-up in ${plan.name} plan`
       : `Investment in ${plan.name} plan`;
@@ -218,12 +220,11 @@ export class InvestmentService {
     };
 
     if (!forceAll) {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      yesterday.setHours(0, 0, 0, 0);
+      // Check for 20 hours instead of 24 hours to account for cron timing variations
+      const twentyHoursAgo = new Date(Date.now() - 20 * HOUR_IN_MS);
       Object.assign(dailyQuery, {
         $or: [
-          { lastPayoutDate: { $lt: yesterday } },
+          { lastPayoutDate: { $lt: twentyHoursAgo } },
           { lastPayoutDate: { $exists: false } },
         ],
       });
