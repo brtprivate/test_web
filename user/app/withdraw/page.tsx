@@ -153,11 +153,6 @@ export default function WithdrawPage() {
       return;
     }
 
-    if (plan.maxAmount && amount > plan.maxAmount) {
-      setAmountError(`Maximum amount is $${plan.maxAmount}`);
-      return;
-    }
-
     if (amount > availableBalance) {
       setAmountError('Insufficient balance');
       return;
@@ -175,11 +170,6 @@ export default function WithdrawPage() {
     const amount = parseFloat(tpAmount);
     if (!tpAmount || isNaN(amount) || amount < selectedPlan.minAmount) {
       addAlert({ type: 'error', message: `Minimum investment is $${selectedPlan.minAmount}` });
-      return;
-    }
-
-    if (selectedPlan.maxAmount && amount > selectedPlan.maxAmount) {
-      addAlert({ type: 'error', message: `Maximum investment is $${selectedPlan.maxAmount}` });
       return;
     }
 

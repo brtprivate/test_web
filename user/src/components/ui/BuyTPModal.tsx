@@ -16,7 +16,6 @@ import { useGenerateWalletMutation, useStartMonitoringMutation } from '@/feature
 import { QRCodeSVG } from 'qrcode.react';
 import { useUser } from '@/features/users/hooks/useUser';
 import { useWallet } from '@/features/wallet/hooks/useWallet';
-import { useGetMyInvestmentsQuery } from '@/features/investments/api/investmentsApi';
 
 const formatAmountRange = (plan: InvestmentPlan) => {
   return `$${plan.minAmount.toLocaleString()} +`;
@@ -62,7 +61,6 @@ export default function BuyTPModal({
   const { user } = useUser();
   const [generateWallet, { isLoading: isGeneratingWallet }] = useGenerateWalletMutation();
   const [startMonitoring, { isLoading: isStartingMonitor }] = useStartMonitoringMutation();
-  const { data: investmentsData } = useGetMyInvestmentsQuery({}, { skip: !isOpen });
 
   // Raw balance from backend (used for display so user sees the real stored value)
   const investmentWalletBalanceRaw = Number(balance?.investmentWallet ?? 0);
@@ -120,12 +118,20 @@ export default function BuyTPModal({
 
       // If we have a selected plan (e.g. from initialPlanId), check if amount fits it
       if (selectedPlan) {
-        const fits = amountNum >= selectedPlan.minAmount;
-        if (fits) return [selectedPlan];
+        const fitsMin = amountNum >= selectedPlan.minAmount;
+        const fitsMax = !selectedPlan.maxAmount || amountNum <= selectedPlan.maxAmount;
+        if (fitsMin && fitsMax) return [selectedPlan];
+        // If amount doesn't fit selected plan, return empty to trigger plan change
+        return [];
       }
 
+      // Filter plans that match the amount range (min and max)
       return availablePlans.filter(
-        (plan) => amountNum >= plan.minAmount
+        (plan) => {
+          const fitsMin = amountNum >= plan.minAmount;
+          const fitsMax = !plan.maxAmount || amountNum <= plan.maxAmount;
+          return fitsMin && fitsMax;
+        }
       );
   }, [availablePlans, amountNum, hasAmount, selectedPlan]);
 
@@ -188,41 +194,22 @@ export default function BuyTPModal({
 
     if (!amount || isNaN(amountNum) || amountNum <= 0) {
       newErrors.amount = 'Please enter a valid amount';
-    } else if (amountNum < minAmount) {
-      newErrors.amount = `Minimum amount is $${minAmount}`;
-    } else if (selectedPlan) {
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
+    }
+
+    // If plan is selected, validate against that plan's min amount
+    if (selectedPlan) {
       if (amountNum < selectedPlan.minAmount) {
-        newErrors.amount = `Minimum amount is $${selectedPlan.minAmount}`;
+        newErrors.amount = `Minimum amount for ${selectedPlan.name} is $${selectedPlan.minAmount}`;
       }
-      
-      // Check for existing investment in this plan and max limit
-      if (selectedPlan.maxAmount && investmentsData?.data?.investments) {
-        const planIdToMatch = selectedPlan.id || selectedPlan._id;
-        const existingInvestment = investmentsData.data.investments.find(
-          (inv) => {
-            if (inv.status !== 'active') return false;
-            // Check if planId matches (could be string or ObjectId)
-            const invPlanId = typeof inv.planId === 'string' 
-              ? inv.planId 
-              : (inv.planId as any)?._id?.toString() || (inv.planId as any)?.toString();
-            return invPlanId === planIdToMatch || invPlanId === String(planIdToMatch);
-          }
-        );
-        
-        if (existingInvestment) {
-          const currentAllocation = existingInvestment.amount || 0;
-          const projectedTotal = currentAllocation + amountNum;
-          
-          if (projectedTotal > selectedPlan.maxAmount) {
-            const remainingAmount = selectedPlan.maxAmount - currentAllocation;
-            newErrors.amount = `Adding $${amountNum.toFixed(2)} exceeds the ${selectedPlan.name} plan limit of $${selectedPlan.maxAmount}. Current allocation: $${currentAllocation.toFixed(2)}. You can invest up to $${remainingAmount.toFixed(2)} more.`;
-          }
-        } else if (amountNum > selectedPlan.maxAmount) {
-          newErrors.amount = `Maximum investment amount is $${selectedPlan.maxAmount}`;
-        }
+    } else {
+      // If no plan selected, check if amount fits any plan
+      if (matchingPlans.length === 0) {
+        newErrors.amount = 'Enter an amount that fits an active plan';
+      } else if (amountNum < minAmount) {
+        newErrors.amount = `Minimum amount is $${minAmount}`;
       }
-    } else if (matchingPlans.length === 0) {
-      newErrors.amount = 'Enter an amount that fits an active plan';
     }
 
     setErrors(newErrors);

@@ -40,20 +40,6 @@ export class InvestmentService {
           })
         : null;
 
-    if (plan.maxAmount) {
-      const baseAmount = existingInvestment?.amount ?? 0;
-      const projectedTotal = baseAmount + data.amount;
-      if (!existingInvestment && data.amount > plan.maxAmount) {
-        throw new Error(`Maximum investment amount is $${plan.maxAmount}`);
-      }
-      if (existingInvestment && projectedTotal > plan.maxAmount) {
-        const remainingAmount = plan.maxAmount - baseAmount;
-        throw new Error(
-          `Adding $${data.amount} exceeds the ${plan.name} plan limit of $${plan.maxAmount}. Current allocation: $${baseAmount.toFixed(2)}. You can invest up to $${remainingAmount.toFixed(2)} more.`
-        );
-      }
-    }
-
     // Get user
     const user = await User.findById(userId);
     if (!user) {
