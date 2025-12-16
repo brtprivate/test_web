@@ -72,7 +72,25 @@ adminSchema.pre('save', async function (next) {
 
 // Compare password method
 adminSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-  return await bcrypt.compare(candidatePassword, this.password);
+  // Check if password hash is valid bcrypt format
+  if (!this.password || typeof this.password !== 'string') {
+    throw new Error('Password hash is missing or invalid');
+  }
+
+  // Valid bcrypt hashes start with $2a$, $2b$, $2x$, or $2y$
+  if (!this.password.match(/^\$2[abxy]\$\d{2}\$/)) {
+    throw new Error(`Invalid password hash format. The stored password appears to be corrupted or not properly hashed. Expected bcrypt hash format, but got: ${this.password.substring(0, 10)}...`);
+  }
+
+  try {
+    return await bcrypt.compare(candidatePassword, this.password);
+  } catch (error: any) {
+    // If bcrypt comparison fails due to invalid hash, provide a clearer error
+    if (error.message.includes('Invalid salt revision')) {
+      throw new Error(`Invalid password hash in database. The password for this admin account needs to be reset. Original error: ${error.message}`);
+    }
+    throw error;
+  }
 };
 
 export const Admin = mongoose.model<IAdmin>('Admin', adminSchema);

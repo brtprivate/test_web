@@ -15,6 +15,19 @@ import { adminInitService } from './services/admin-init.service';
 import { initializeWalletMonitor } from './services/wallet-monitor.service';
 import { env } from './config/env';
 
+// Security middleware imports
+import {
+  ipBlockingMiddleware,
+  userAgentValidationMiddleware,
+  pathValidationMiddleware,
+  requestSizeLimit,
+  generalRateLimiter,
+  speedLimiter,
+  mongoSanitizeMiddleware,
+  securityHeadersMiddleware,
+  securityLoggingMiddleware,
+} from './middleware/security.middleware';
+
 // Load environment variables
 dotenv.config();
 
@@ -22,8 +35,29 @@ const app: express.Application = express();
 const PORT: number = parseInt(process.env.PORT || '3000', 10);
 const HOST: string = process.env.HOST || '0.0.0.0';
 
-// Middleware
-// CORS - Must be before helmet and other middleware
+// ============================================
+// SECURITY MIDDLEWARE (Applied in order)
+// ============================================
+
+// 1. IP Blocking - Block known malicious IPs
+app.use(ipBlockingMiddleware);
+
+// 2. Security Headers - Add security headers to all responses
+app.use(securityHeadersMiddleware);
+
+// 3. Request Size Limit - Prevent large payload attacks
+app.use(requestSizeLimit('10mb'));
+
+// 4. Path Validation - Block access to suspicious paths
+app.use(pathValidationMiddleware);
+
+// 5. User Agent Validation - Block suspicious user agents
+app.use(userAgentValidationMiddleware);
+
+// 6. Security Logging - Log all requests for monitoring
+app.use(securityLoggingMiddleware);
+
+// 7. CORS - Must be before helmet and other middleware
 // Allow every domain by default (including credentialed requests)
 const allowCredentials = process.env.CORS_CREDENTIALS !== 'false';
 
@@ -43,15 +77,40 @@ app.use(cors(corsOptions));
 // Handle manual preflight responses for any non-standard routes
 app.options('*', cors(corsOptions));
 
-// Configure helmet to allow cross-origin requests
+// 8. Configure helmet with enhanced security
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
   crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  },
 }));
 
+// 9. Request logging
 app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+// 10. Body parsing with size limits
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// 11. MongoDB injection protection
+app.use(mongoSanitizeMiddleware);
+
+// 12. Speed limiter - Slow down repeated requests
+app.use(speedLimiter);
+
+// 13. General rate limiter - Apply to all routes
+app.use(generalRateLimiter);
 
 // Health check route
 app.get('/health', (_req, res) => {

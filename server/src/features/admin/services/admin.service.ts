@@ -34,9 +34,17 @@ export class AdminService {
     }
 
     // Check password
-    const isPasswordValid = await admin.comparePassword(data.password);
-    if (!isPasswordValid) {
-      return null;
+    try {
+      const isPasswordValid = await admin.comparePassword(data.password);
+      if (!isPasswordValid) {
+        return null;
+      }
+    } catch (error: any) {
+      // If password hash is corrupted, throw a more helpful error
+      if (error.message.includes('Invalid password hash') || error.message.includes('Invalid salt revision')) {
+        throw new Error('Password hash is corrupted. Please contact an administrator to reset your password.');
+      }
+      throw error;
     }
 
     if (!admin.isActive) {
@@ -81,9 +89,47 @@ export class AdminService {
       throw new Error('Admin not found');
     }
 
-    const isPasswordValid = await admin.comparePassword(oldPassword);
-    if (!isPasswordValid) {
-      throw new Error('Invalid old password');
+    try {
+      const isPasswordValid = await admin.comparePassword(oldPassword);
+      if (!isPasswordValid) {
+        throw new Error('Invalid old password');
+      }
+    } catch (error: any) {
+      // If password hash is corrupted, allow password reset
+      if (error.message.includes('Invalid password hash') || error.message.includes('Invalid salt revision')) {
+        // Allow password change even if old password hash is corrupted
+        console.warn(`Admin ${adminId} has corrupted password hash. Allowing password reset.`);
+      } else {
+        throw error;
+      }
+    }
+
+    admin.password = newPassword;
+    await admin.save();
+  }
+
+  /**
+   * Reset password for an admin (bypasses old password check)
+   * Use this method to fix corrupted password hashes
+   */
+  async resetPassword(adminId: string, newPassword: string): Promise<void> {
+    const admin = await Admin.findById(adminId).select('+password');
+    if (!admin) {
+      throw new Error('Admin not found');
+    }
+
+    admin.password = newPassword;
+    await admin.save();
+  }
+
+  /**
+   * Reset password by email (bypasses old password check)
+   * Use this method to fix corrupted password hashes
+   */
+  async resetPasswordByEmail(email: string, newPassword: string): Promise<void> {
+    const admin = await Admin.findOne({ email }).select('+password');
+    if (!admin) {
+      throw new Error('Admin not found');
     }
 
     admin.password = newPassword;
