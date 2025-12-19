@@ -11,7 +11,9 @@
     "lint": "eslint src --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "error": "npx tsc --noEmit",
-    "seed": "tsx src/scripts/seed-database.ts"
+    "seed": "tsx src/scripts/seed-database.ts",
+    "ensure-admin": "tsx src/scripts/ensure-admin.ts",
+    "reset-admin-password": "tsx src/scripts/reset-admin-password.ts"
   },
   "keywords": [],
   "author": "",

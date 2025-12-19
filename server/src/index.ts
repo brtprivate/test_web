@@ -39,6 +39,34 @@ const HOST: string = process.env.HOST || '0.0.0.0';
 // SECURITY MIDDLEWARE (Applied in order)
 // ============================================
 
+// 0. CORS - Must be FIRST to handle preflight requests
+// Allow every domain by default (including credentialed requests)
+const allowCredentials = process.env.CORS_CREDENTIALS !== 'false';
+
+const corsOptions: cors.CorsOptions = {
+  // Explicitly allow all origins
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, Postman, etc.)
+    if (!origin) {
+      return callback(null, true);
+    }
+    // Allow all origins
+    callback(null, true);
+  },
+  credentials: allowCredentials,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-CSRF-Token'],
+  exposedHeaders: ['Authorization'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  maxAge: 86400, // 24 hours
+};
+
+app.use(cors(corsOptions));
+
+// Handle manual preflight responses for any non-standard routes
+app.options('*', cors(corsOptions));
+
 // 1. IP Blocking - Block known malicious IPs
 app.use(ipBlockingMiddleware);
 
@@ -56,26 +84,6 @@ app.use(userAgentValidationMiddleware);
 
 // 6. Security Logging - Log all requests for monitoring
 app.use(securityLoggingMiddleware);
-
-// 7. CORS - Must be before helmet and other middleware
-// Allow every domain by default (including credentialed requests)
-const allowCredentials = process.env.CORS_CREDENTIALS !== 'false';
-
-const corsOptions: cors.CorsOptions = {
-  // Returning true echoes back the request origin, which works with credentials
-  origin: true,
-  credentials: allowCredentials,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-  exposedHeaders: ['Authorization'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-};
-
-app.use(cors(corsOptions));
-
-// Handle manual preflight responses for any non-standard routes
-app.options('*', cors(corsOptions));
 
 // 8. Configure helmet with enhanced security
 app.use(helmet({

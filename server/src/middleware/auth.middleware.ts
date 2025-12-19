@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { authService } from '../features/auth/services/auth.service';
 import { User } from '../features/users/models/user.model';
-import { getClientIp, logSuspiciousActivity } from './security.middleware';
+import { logSuspiciousActivity } from './security.middleware';
 
 export interface AuthRequest extends Request {
   user?: any;

@@ -69,3 +69,4 @@ All suspicious activities are logged with:
 4. Use a WAF (Web Application Firewall)
 5. Monitor logs with a centralized logging service
 
+

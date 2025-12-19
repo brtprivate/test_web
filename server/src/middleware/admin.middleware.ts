@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { adminService } from '../features/admin/services/admin.service';
-import { getClientIp, logSuspiciousActivity } from './security.middleware';
+import { logSuspiciousActivity } from './security.middleware';
 
 export interface AdminAuthRequest extends Request {
   admin?: {

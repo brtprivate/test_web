@@ -27,7 +27,9 @@ export class AdminService {
   }
 
   async login(data: AdminLoginDto): Promise<IAdmin | null> {
-    const admin = await Admin.findOne({ email: data.email }).select('+password');
+    // Normalize email (lowercase and trim) for case-insensitive matching
+    const normalizedEmail = data.email.toLowerCase().trim();
+    const admin = await Admin.findOne({ email: normalizedEmail }).select('+password');
 
     if (!admin) {
       return null;
@@ -60,6 +62,10 @@ export class AdminService {
 
   async getAdminById(id: string): Promise<IAdmin | null> {
     return await Admin.findById(id);
+  }
+
+  async getAdminByEmail(email: string): Promise<IAdmin | null> {
+    return await Admin.findOne({ email: email.toLowerCase().trim() });
   }
 
   async getAllAdmins(): Promise<IAdmin[]> {

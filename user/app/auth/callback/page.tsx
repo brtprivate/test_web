@@ -12,10 +12,13 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { setToken } from '@/lib/utils/cookies';
 import { setReferralCode, getReferralCodeOrDefault } from '@/lib/utils/referral';
+import { useAppDispatch } from '@/hooks/useAppDispatch';
+import { setAuthToken } from '@/lib/slices/authSlice';
 
 function AuthCallbackContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
 
@@ -43,8 +46,19 @@ function AuthCallbackContent() {
     
     if (token) {
       try {
+        // Store token in localStorage immediately
+        if (typeof window !== 'undefined') {
+          window.localStorage.setItem('token', token);
+        }
+        
         // Store token in cookies (expires in 7 days)
         setToken(token, 7);
+        
+        // Dispatch token to Redux store
+        dispatch(setAuthToken(token));
+        
+        console.log('✅ Token stored in localStorage, cookies, and Redux');
+        
         setStatus('success');
         setMessage('Token successfully stored! Redirecting...');
         

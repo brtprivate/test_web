@@ -105,6 +105,11 @@ export const ipBlockingMiddleware = (
   res: Response,
   next: NextFunction
 ): void => {
+  // Allow OPTIONS requests (CORS preflight) to pass through
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+
   const ip = getClientIp(req);
 
   if (isBlockedIp(ip)) {
@@ -127,6 +132,11 @@ export const userAgentValidationMiddleware = (
   res: Response,
   next: NextFunction
 ): void => {
+  // Allow OPTIONS requests (CORS preflight) to pass through
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+
   const userAgent = req.headers['user-agent'];
 
   // Allow requests to health check and API endpoints with proper user agents
@@ -161,7 +171,22 @@ export const pathValidationMiddleware = (
   res: Response,
   next: NextFunction
 ): void => {
+  // Allow OPTIONS requests (CORS preflight) to pass through
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+
   const path = req.path.toLowerCase();
+
+  // Allow API routes (they start with /api)
+  if (path.startsWith('/api')) {
+    return next();
+  }
+
+  // Allow health check
+  if (path === '/health') {
+    return next();
+  }
 
   if (isSuspiciousPath(path)) {
     logSuspiciousActivity(req, 'Suspicious path access attempt');

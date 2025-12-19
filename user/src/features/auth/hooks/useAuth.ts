@@ -37,9 +37,20 @@ export const useAuth = () => {
     };
   }, [dispatch]);
   
-  const { data: verifyData, isLoading: isVerifying } = useVerifyTokenQuery(undefined, {
+  const { data: verifyData, isLoading: isVerifying, refetch: refetchVerify } = useVerifyTokenQuery(undefined, {
     skip: !hasToken, // Skip the query if there's no token
   });
+
+  // Refetch verify query when token changes from null to a value
+  useEffect(() => {
+    if (hasToken && token && refetchVerify) {
+      // Small delay to ensure token is properly set in headers
+      const timeoutId = setTimeout(() => {
+        refetchVerify();
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [hasToken, token, refetchVerify]);
 
   const handleSignup = useCallback(
     async (signupData: Parameters<typeof signup>[0]) => {

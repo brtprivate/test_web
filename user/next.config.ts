@@ -48,6 +48,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // Compress responses
   compress: true,
+  // Esbuild configuration for Next.js 16
+  experimental: {
+    optimizePackageImports: ['@reduxjs/toolkit', 'react-redux'],
+  },
 };
 
 export default nextConfig;
