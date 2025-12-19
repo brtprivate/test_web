@@ -115,16 +115,17 @@ export class TelegramWebhookController {
       console.log('   Update ID:', update.update_id);
       console.log('   User Details:', userDetails);
 
-      // Process message through bot handlers if bot is initialized
-      if (update.message && telegramService.getBot()) {
+      // Process update through bot handlers if bot is initialized
+      // This handles messages, callback queries, and other update types
+      if (telegramService.getBot() && (update.message || update.callback_query)) {
         try {
           const bot = telegramService.getBot();
           if (bot) {
-            // Trigger bot message handlers
+            // Process update through bot handlers (handles all update types)
             bot.processUpdate(update as any);
           }
         } catch (error: any) {
-          console.warn('Could not process message through bot handlers:', error.message);
+          console.warn('Could not process update through bot handlers:', error.message);
         }
       }
 

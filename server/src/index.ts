@@ -169,6 +169,18 @@ const startServer = async () => {
     if (process.env.TELEGRAM_BOT_TOKEN) {
       try {
         telegramService.initialize();
+        
+        // Set webhook URL if configured (webhook mode)
+        if (env.TELEGRAM_WEBHOOK_URL && env.TELEGRAM_WEBHOOK_URL.trim() !== '' && !env.TELEGRAM_POLLING) {
+          try {
+            await telegramService.setWebhook(env.TELEGRAM_WEBHOOK_URL);
+            const webhookInfo = await telegramService.getWebhookInfo();
+            console.log('📡 Webhook configuration:', webhookInfo);
+          } catch (webhookError: any) {
+            console.warn('⚠️ Failed to set webhook URL:', webhookError.message);
+            console.warn('   Bot will still work if webhook is set manually');
+          }
+        }
       } catch (error: any) {
         console.warn('⚠️ Telegram Bot initialization failed:', error.message);
         console.warn('   Server will continue without Telegram Bot');

@@ -50,24 +50,42 @@ const buildTeamTree = (
   }));
 };
 
+// Memoized team size calculation to avoid repeated computations
+const teamSizeCache = new Map<string, number>();
+
 const calculateTeamSize = (leaderId: string, graph: Map<string, AdminUser[]>) => {
+  // Return cached value if available
+  if (teamSizeCache.has(leaderId)) {
+    return teamSizeCache.get(leaderId)!;
+  }
+
   let size = 0;
+  const visited = new Set<string>();
   const stack = [...(graph.get(leaderId) ?? [])];
+  
   while (stack.length) {
     const node = stack.pop();
-    if (!node) continue;
+    if (!node || visited.has(node._id)) continue;
+    visited.add(node._id);
     size += 1;
     const children = graph.get(node._id) ?? [];
-    stack.push(...children);
+    stack.push(...children.filter(child => !visited.has(child._id)));
   }
+  
+  // Cache the result
+  teamSizeCache.set(leaderId, size);
   return size;
 };
 
 export const TeamsView = () => {
-  const { data, isLoading } = useGetUsersQuery({ limit: 400 });
+  const { data, isLoading } = useGetUsersQuery({ limit: 100 });
   const users = useMemo(() => data?.data.users ?? [], [data]);
 
-  const graph = useMemo(() => buildReferralGraph(users), [users]);
+  const graph = useMemo(() => {
+    // Clear cache when users change (new graph is being built)
+    teamSizeCache.clear();
+    return buildReferralGraph(users);
+  }, [users]);
 
   const leaders = useMemo(() => {
     const referralCounts: Record<string, number> = {};
@@ -75,18 +93,27 @@ export const TeamsView = () => {
       referralCounts[leaderId] = children.length;
     });
 
-    return Object.entries(referralCounts)
-      .map(([leaderId, directs]) => {
-        const profile = users.find((u) => u._id === leaderId);
-        return {
-          id: leaderId,
-          name: profile?.name ?? 'Unknown',
-          directs,
-          totalTeam: calculateTeamSize(leaderId, graph),
-          investment: profile?.totalInvested ?? 0,
-          earnings: profile?.totalEarned ?? 0,
-        };
-      })
+    // Calculate team sizes more efficiently - limit to top candidates first
+    const topCandidates = Object.entries(referralCounts)
+      .map(([leaderId, directs]) => ({
+        leaderId,
+        directs,
+        profile: users.find((u) => u._id === leaderId),
+      }))
+      .filter(item => item.profile) // Only include users that exist
+      .sort((a, b) => (b.profile?.totalInvested ?? 0) - (a.profile?.totalInvested ?? 0)) // Sort by investment first as proxy
+      .slice(0, 20); // Calculate team size for top 20 candidates only
+
+    const leadersWithTeamSize = topCandidates.map(({ leaderId, directs, profile }) => ({
+      id: leaderId,
+      name: profile?.name ?? 'Unknown',
+      directs,
+      totalTeam: calculateTeamSize(leaderId, graph),
+      investment: profile?.totalInvested ?? 0,
+      earnings: profile?.totalEarned ?? 0,
+    }));
+
+    return leadersWithTeamSize
       .sort((a, b) => b.totalTeam - a.totalTeam)
       .slice(0, 8);
   }, [graph, users]);

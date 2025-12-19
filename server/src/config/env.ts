@@ -27,7 +27,7 @@ export const env = {
   // Telegram Bot
   TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN || '',
   TELEGRAM_WEBHOOK_URL: process.env.TELEGRAM_WEBHOOK_URL || '',
-  TELEGRAM_POLLING: process.env.TELEGRAM_POLLING !== 'false',
+  TELEGRAM_POLLING: process.env.TELEGRAM_POLLING === 'true', // Default: false (polling off, use webhook)
   
   // App URL
   APP_URL: process.env.APP_URL || 'http://localhost:3000',

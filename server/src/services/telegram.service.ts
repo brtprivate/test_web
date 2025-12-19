@@ -540,20 +540,28 @@ class TelegramService {
 
     if (!this.bot) {
       try {
-        // Check if webhook URL is set, use webhook mode, otherwise use polling
+        // Check if webhook URL is set, use webhook mode, otherwise use polling (if enabled)
         const useWebhook = env.TELEGRAM_WEBHOOK_URL && env.TELEGRAM_WEBHOOK_URL.trim() !== '';
         
-        if (useWebhook && env.TELEGRAM_POLLING === false) {
+        // Priority: If webhook URL is set, use webhook mode (polling should be off)
+        // Only use polling if explicitly enabled and no webhook URL is set
+        if (useWebhook) {
           // Webhook mode - bot will receive updates via webhook endpoint
           this.bot = new TelegramBot(env.TELEGRAM_BOT_TOKEN, { webHook: false });
           this.isPolling = false;
           console.log('✅ Telegram Bot initialized (Webhook mode)');
           console.log(`   Webhook URL: ${env.TELEGRAM_WEBHOOK_URL}`);
-        } else {
+        } else if (env.TELEGRAM_POLLING === true) {
           // Polling mode - bot will poll for updates
           this.bot = new TelegramBot(env.TELEGRAM_BOT_TOKEN, { polling: true });
           this.isPolling = true;
           console.log('✅ Telegram Bot initialized (Polling mode)');
+        } else {
+          // No polling, no webhook - bot initialized but not receiving updates
+          this.bot = new TelegramBot(env.TELEGRAM_BOT_TOKEN, { webHook: false });
+          this.isPolling = false;
+          console.log('✅ Telegram Bot initialized (No polling, webhook mode disabled)');
+          console.log('⚠️  Bot will not receive updates. Enable polling or set webhook URL to receive updates.');
         }
         
         this.setupBotHandlers();

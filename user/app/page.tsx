@@ -184,7 +184,7 @@ export default function Home() {
       if (remaining <= 0) {
         clearInterval(timer);
       }
-    }, 1000);
+    }, 1000); // Keep 1 second for accuracy, but only runs when countdown is active
 
     return () => clearInterval(timer);
   }, [countdownSecondsTarget, weeklyStatus?.canInvestNow]);
@@ -220,7 +220,8 @@ export default function Home() {
     };
 
     calculateTimeRemaining();
-    const interval = setInterval(calculateTimeRemaining, 1000);
+    // Update every 30 seconds instead of every second - settlement time doesn't need second-by-second precision
+    const interval = setInterval(calculateTimeRemaining, 30000);
 
     return () => clearInterval(interval);
   }, []);
